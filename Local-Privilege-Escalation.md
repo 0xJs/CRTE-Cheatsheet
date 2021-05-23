@@ -17,7 +17,7 @@ https://github.com/AlessandroZ/BeRoot
 ####  Run powerup check all
 https://github.com/HarmJ0y/PowerUp
 ```
-. ./powerup
+. ./Powerup.ps1
 Invoke-allchecks
 ```
 
@@ -25,6 +25,16 @@ Invoke-allchecks
 ```
 Get-ServiceUnquoted -Verbose
 Get-ModifiableServiceFile -Verbose
+```
+
+####  Get services where the current user can write to its binary path or change arguments to the binary
+```
+Get-ModifiableServiceFile -Verbose
+```
+
+#### Get the services whose configuration current user can modify.
+```
+Get-ModifiableService -Verbose
 ```
 
 ####  Abuse service to get local admin permissions with powerup
