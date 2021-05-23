@@ -3,11 +3,11 @@ Currently copied from CRTP-cheatsheet but will add more!
 
 # Summary
 * [General](#General)
-* [Domain Enumeration](#Domain-Enumeration.md) 
-* [Local privilege escalation](#Local-privilege-escalation)
-* [Lateral Movement](#Lateral-Movement)
-* [Domain privilege escalation](#Domain-privilege-escalation)
-* [Domain Persistence](#Domain-Persistence)
+* [Local privilege escalation](Local-privilege-escalation.md)
+* [Domain Enumeration](Domain-Enumeration.md) 
+* [Lateral Movement](Lateral-Movement.md)
+* [Domain privilege escalation](Domain-privilege-escalation.md)
+* [Domain Persistence](Domain-persistence.md)
    
 # General
 #### Access C disk of a computer (check local admin)
