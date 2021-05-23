@@ -1,4 +1,12 @@
 # Domain Enumeration
+* [Powerview Domain](#Powerview-Domain)
+* [Powerview Users, groups and computers](#Powerview-users-groups-and-computers) 
+* [Powerview Shares](#Powerview-shares)
+* [Powerview GPO](#Powerview-GPO)
+* [Powerview ACL](#Powerview-ACL)
+* [Powerview Domain Trust](#Powerview-Domain-Trust)
+* [Misc](#misc)
+
 ## Powerview Domain
 https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
 ```
