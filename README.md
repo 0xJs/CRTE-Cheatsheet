@@ -89,8 +89,9 @@ Get-DomainSID
 #### Get the domain password policy
 ```
 Get-DomainPolicy
+Get-DomainPolicyData
 (Get-DomainPolicy)."System Access"
-net accounts
+net accounts /domain
 ```
 
 ## Powerview users groups and computers
