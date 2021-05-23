@@ -6,8 +6,6 @@ Currently copied from CRTP-cheatsheet but will add more!
 * [Domain Enumeration](#Domain-Enumeration.md) 
 * [Local privilege escalation](#Local-privilege-escalation)
 * [Lateral Movement](#Lateral-Movement)
-   * [General](#General) 
-   * [Mimikatz](#Mimikatz) 
 * [Domain Persistence](#Domain-Persistence)
    * [Golden Ticket](#Golden-Ticket) 
    * [Silver Ticket](#Silver-Ticket)
