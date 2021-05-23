@@ -12,7 +12,7 @@ Currently copied from CRTP-cheatsheet but will add more!
 # General
 #### Access C disk of a computer (check local admin)
 ```
-ls \\<computername>\c$
+ls \\<COMPUTERNAME>\c$
 ```
 
 #### Use this parameter to not print errors powershell
@@ -22,14 +22,41 @@ ls \\<computername>\c$
 
 #### Rename powershell windows
 ```
-$host.ui.RawUI.WindowTitle = "<naam>"
+$host.ui.RawUI.WindowTitle = "<NAME>"
 ```
 
-#### Impacket PSexec impacket
-If no LM Hash use an empty one: ```aad3b435b51404eeaad3b435b51404ee```
+#### Save Credentials
 ```
-python3 psexec.py -hashes <LMHASH>:<NTHASH> <DOMAIN>/<USERNAME>@<TARGET>
-python3 psexec.py <DOMAIN>/<USERNAME>:<PASSWORD>@<TARGET>
+$creds = get-credential
+
+$password = ConvertTo-SecureString '<PASSWORD>' -AsPlainText -Force
+$creds = New-Object System.Management.Automation.PSCredential('<USERNAME>', $password)
+```
+
+#### Find a specific file
+```
+Get-Childitem -Path C:\ -Force -Include <FILENAME OR WORD TO SEARCH> -Recurse -ErrorAction SilentlyContinue
+```
+
+## PSSession
+#### Save pssession in variable
+```
+$sess = New-PSSession -Credential $creds -ComputerName <IP>
+```
+
+#### Run commands on machine
+```
+Invoke-Commannd -ScriptBlock {COMMAND} -Session $sess
+```
+
+#### Load script on machine
+```
+Invoke-Commannd -Filepath <PATH TO SCRIPT> -Session $sess
+```
+
+#### Copy item through PSSession
+```
+Copy-Item -ToSession $sess -Path <PATH> -Destination <DEST> -verbose
 ```
 
 #### AMSI Bypass
