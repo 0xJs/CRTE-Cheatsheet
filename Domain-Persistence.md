@@ -1,4 +1,17 @@
 # Domain persistence
+* [Golden Ticket](#Golden-Ticket) 
+* [Silver Ticket](#Silver-Ticket)
+* [Skeleton Key](#Skeleton-Key)
+* [DSRM](#DSRM)
+* [Custom SSP - Track logons](#Custom-SSP---Track-logons)
+* [ACL](#ACL)
+  * [AdminSDHolder](#AdminSDHolder)
+  * [DCsync](#DCsync)
+  * [SecurityDescriptor - WMI](#SecurityDescriptor---WMI)
+  * [SecurityDescriptor - Powershell Remoting](#SecurityDescriptor---Powershell-Remoting)
+  * [SecurityDescriptor - Remote Registry](#SecurityDescriptor---Remote-Registry)
+
+
 ## Golden ticket
 - https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/kerberos-golden-tickets
 
