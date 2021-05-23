@@ -3,14 +3,7 @@ Currently copied from CRTP-cheatsheet but will add more!
 
 # Summary
 * [General](#General)
-* [Domain Enumeration](#Domain-Enumeration)
-    * [Powerview Domain](#Powerview-Domain)
-    * [Powerview Users, groups and computers](#Powerview-users-groups-and-computers) 
-    * [Powerview Shares](#Powerview-shares)
-    * [Powerview GPO](#Powerview-GPO)
-    * [Powerview ACL](#Powerview-ACL)
-    * [Powerview Domain Trust](#Powerview-Domain-Trust)
-    * [Misc](#misc) 
+* [Domain Enumeration](#Domain-Enumeration.md) 
 * [Local privilege escalation](#Local-privilege-escalation)
 * [Lateral Movement](#Lateral-Movement)
    * [General](#General) 
