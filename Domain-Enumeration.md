@@ -3,9 +3,9 @@
 * [Powerview Users, groups and computers](#Powerview-users-groups-and-computers) 
 * [Powerview Shares](#Powerview-shares)
 * [Powerview GPO](#Powerview-GPO)
+* [Powerview OU]#Powerview-OU)
 * [Powerview ACL](#Powerview-ACL)
 * [Powerview Domain Trust](#Powerview-Domain-Trust)
-* [User Hunting](#User-Hunting)
 * [Bloodhound](#Bloodhound)
 
 ## Powerview Domain
@@ -16,12 +16,12 @@ https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
 
 #### Get current domain
 ```
-Get-NetDomain
+Get-Domain
 ```
 
 #### Get object of another domain
 ```
-Get-NetDomain -Domain <domainname>
+Get-Domain -Domain <domainname>
 ```
 
 #### Get Domain SID for the current domain
@@ -40,86 +40,87 @@ net accounts /domain
 ## Powerview users groups and computers
 #### Get Information of domain controller
 ```
-Get-NetDomainController
-Get-NetDomainController | select-object Name
+Get-DomainController
+Get-DomainController | select-object Name
 ```
 
 #### Get information of users in the domain
 ```
-Get-NetUser
-Get-NetUser -Username <username>
+Get-DomainUser
+Get-DomainUser -Username <username>
 ```
 
 #### Get list of all users
 ```
-Get-NetUser | select samaccountname
+Get-DomainUser | select samaccountname
 ```
 
 #### Get list of usernames, last logon and password last set
 ```
-Get-NetUser | select samaccountname, lastlogon, pwdlastset
-Get-NetUser | select samaccountname, lastlogon, pwdlastset | Sort-Object -Property lastlogon
+Get-DomainUser | select samaccountname, lastlogon, pwdlastset
+Get-DomainUser | select samaccountname, lastlogon, pwdlastset | Sort-Object -Property lastlogon
 ```
 
 #### Get list of usernames and their groups
 ```
-Get-NetUser | select samaccountname, memberof
+Get-DomainUser | select samaccountname, memberof
 ```
 
 #### Get list of all properties for users in the current domain
 ```
-get-userproperty -Properties pwdlastset
+Get-Userproperty -Properties pwdlastset
 ```
 
 #### Get descripton field from the user
 ```
 Find-UserField -SearchField Description -SearchTerm "built"
-Get-netuser | Select-Object samaccountname,description
+Get-DomainUser | Select-Object samaccountname,description
 ```
 
 #### Get computer information
 ```
-Get-NetComputer
-Get-NetComputer -FullData
-Get-NetComputer -Computername <computername> -FullData
+Get-DomainComputer
+Get-DomainComputer -FullData
+Get-DomainComputer -Computername <COMPUTERNAME> -FullData
 ```
 
 #### Get computers with operating system ""
 ```
-Get-NetComputer -OperatingSystem "*Server 2016*"
+Get-DomainComputer -OperatingSystem "*Server 2016*"
 ```
 
 #### Get list of all computer names and operating systems
 ```
-Get-NetComputer -fulldata | select samaccountname, operatingsystem, operatingsystemversion
+Get-DomainComputer -fulldata | select samaccountname, operatingsystem, operatingsystemversion
 ```
 
 #### List all groups of the domain
 ```
-Get-NetGroup
-Get-NetGroup -GroupName *admin*
-Get-NetGroup -Domain <domain>
+Get-DomainGroup
+Get-DomainGroup -GroupName *admin*
+Get-DomainGroup -Domain <DOMAIN>
 ```
 
 #### Get all the members of the group
 ```
-Get-NetGroupMember -Groupname "Domain Admins" -Recurse
-Get-NetGroupMember -Groupname "Domain Admins" -Recurse | select MemberName
+Get-DomainGroupMember -Groupname "Domain Admins" -Recurse
+Get-DomainGroupMember -Groupname "Domain Admins" -Recurse | select MemberName
 ```
 
 #### Get the group membership of a user
 ```
-Get-NetGroup -Username <username>
+Get-DomainGroup -Username <SAMACCOUNTNAME>
 ```
 
 #### List all the local groups on a machine (needs admin privs on non dc machines)
 ```
-Get-NetlocalGroup -Computername <computername> -ListGroups
+Get-NetLocalGroup -Computername <COMPUTERNAME> -ListGroups
 ```
 
 #### Get Member of all the local groups on a machine (needs admin privs on non dc machines)
 ```
-Get-NetlocalGroup -Computername <computername> -Recurse
+Get-NetLocalGroupMember -Computername <COMPUTERNAME> -Recurse
+Get-NetLocalGroupMember -ComputerName <COMPUTERNAME -GroupName <GROUPNAME>
 ```
 
 #### Get actively logged users on a computer (needs local admin privs)
@@ -157,140 +158,119 @@ Get-NetFileServer
 ## Powerview GPO
 #### Get list of GPO's in the current domain
 ```
-Get-NetGPO
-Get-NetGPO -Computername <computername>
+Get-DomainGPO
+Get-DomainGPO -Computername <COMPUTERNAME>
 ```
 
 #### Get GPO's which uses restricteds groups or groups.xml for interesting users
 ```
-Get-NetGPOGroup
+Get-DomainGPOLocalGroup
 ```
 
 #### Get users which are in a local group of a machine using GPO
 ```
-Find-GPOComputerAdmin -Computername <computername>
+Get-DomainGPOComputerLocalGroupMapping -ComputerIdentity <COMPUTERNAME>
 ```
 
 #### Get machines where the given user is member of a specific group
 ```
-Find-GPOLocation -Username student244 -Verbose
+Get-DomainGPOUserLocalGroupMapping -Identity <SAMACCOUNTNAME> -Verbose 
 ```
 
+#### Get GPO applied on an OU.
+- Read GPOname from gplink attribute from ```Get-DomainOU```
+```
+Get-DomainGPO -Identity '{<ID>}'
+```
+
+#### Get users which are in a local group of a machine in any OU using GPO 
+```
+(Get-DomainOU).distinguishedname | %{Get-DomainComputer -SearchBase $_} | Get-DomainGPOComputerLocalGroupMapping
+```
+#### Get users which are in a local group of a machine in a particular OU using GPO
+```
+(Get-DomainOU -Identity 'OU=Mgmt,DC=us,DC=techcorp,DC=local').distinguishedname | %{GetDomainComputer -SearchBase $_} | GetDomainGPOComputerLocalGroupMapping
+```
+
+## Powerview OU
 #### Get OU's in a domain
 ```
-Get-NetOU -Fulldata
+Get-DomainOu -Fulldata
 ```
 
 #### Get machines that are part of an OU
 ```
-Get-NetOU StudentMachines | %{Get-NetComputer -ADSPath $_}
-```
-
-#### Get GPO applied on an OU
-gplink from Get-NetOU -Fulldata
-```
-Get-NetGPO -GPOname "{<gplink>}"
+Get-DomainOu <OU> | %{Get-DomainComputer -ADSPath $_}
 ```
 
 ## Powerview ACL
 #### Get the ACL's associated with the specified object
 ```
-Get-ObjectACL -SamAccountName <accountname> -ResolveGUIDS
+Get-DomainObjectAcl -Identity <SAMACCOUNTNAME> -ResolveGUIDS
 ```
 
 #### Get the ACL's associated with the specified prefix to be used for search
 ```
-Get-ObjectACL -ADSprefix ‘CN=Administrator,CN=Users’ -Verbose
+Get-DomainObjectAcl -ADSprefix ‘CN=Administrator,CN=Users’ -Verbose
 ```
+
+#### Get the ACLs associated with the specified LDAP path to be used for search
+```
+Get-DomainObjectAcl -Searchbase "LDAP://CN=Domain Admins,CN=Users,DC=us,DC=techcorp,DC=local" -ResolveGUIDs -Verbose
+````
 
 #### Get the ACL's associated with the specified path
 ```
-Get-PathAcl -Path \\<Domain controller>\sysvol
+Get-PathAcl -Path "\\<DC>\sysvol"
 ```
 
 #### Search for interesting ACL's
 ```
-Invoke-ACLScanner -ResolveGUIDs
-Invoke-ACLScanner -ResolveGUIDs | select IdentityReference, ObjectDN, ActiveDirectoryRights | fl
+Find-InterestingDomainAcl -ResolveGUIDs
+Find-InterestingDomainAcl -ResolveGUIDs | select IdentityReference, ObjectDN, ActiveDirectoryRights | fl
 ```
 
 #### Search of interesting ACL's for the current user
 ```
-Invoke-ACLScanner | Where-Object {$_.IdentityReference –eq [System.Security.Principal.WindowsIdentity]::GetCurrent().Name}
+Find-InterestingDomainAcl | Where-Object {$_.IdentityReference –eq [System.Security.Principal.WindowsIdentity]::GetCurrent().Name}
 ```
 
 ## Powerview Domain trust
 #### Get a list of all the domain trusts for the current domain
 ```
-Get-NetDomainTrust
+Get-DomainTrust
 ```
 
 #### Get details about the forest
 ```
-Get-NetForest
+Get-Forest
 ```
 
 #### Get all domains in the forest
 ```
-Get-NetForestDomain
-Get-NetforestDomain -Forest <domain name>
+Get-ForestDomain
+Get-forestDomain -Forest <FOREST NAME>
 ```
 
 #### Get global catalogs for the current forest
 ```
-Get-NetForestCatalog
-Get-NetForestCatalog -Forest <domain name>
+Get-ForestGlobalCatalog
+Get-ForestGlobalCatalog -Forest <FOREST NAME>
 ```
 
 #### Map trusts of a forest
 ```
-Get-NetForestTrust
-Get-NetForestTrust -Forest <domain name>
-Get-NetForestDomain -Verbose | Get-NetDomainTrust
+Get-ForestTrust
+Get-ForestTrust -Forest <FOREST NAME>
+Get-ForestDomain -Verbose | Get-DomainTrust
 ```
 
-## User Hunting
-### Check Local Admin Access
-#### Powerview
-```
-Find-LocalAdminAccess -Verbose
-```
-
-### Other scripts
-```
-. ./Find-WMILocalAdminAccess.ps1
-Find-WMILocalAdminAccess
-```
-
-```
-. ./Find-PSRemotingLocalAdminAccess.ps1
-Find-PSRemotingLocalAdminAccess
-```
-
-#### Find computers where DA has sessions
-```
-Find-DomainUserLocation -Verbose
-Find-DomainUserLocation -UserGroupIdentity "StudentUsers"
-```
-
-#### Find computers where a domain admin session is available and current user has admin access
-```
-Find-DomainUserLocation -CheckAccess
-```
-
-#### Find computers (File servers and distributed file servers) where a domain admin session is available
-```
-Find-DomainUserLocation –Stealth
-```
-
-##  BloodHound
+## BloodHound
 https://github.com/BloodHoundAD/BloodHound
 ```
 cd Ingestors
 . ./sharphound.ps1
 Invoke-Bloodhound -CollectionMethod all -Verbose
-Invoke-Bloodhound -CollectionMethod Acl -Verbose
-Invoke-Bloodhound -CollectionMethod Sessions -Verbose
 Invoke-Bloodhound -CollectionMethod LoggedOn -Verbose
 
 #Copy neo4j-community-3.5.1 to C:\
