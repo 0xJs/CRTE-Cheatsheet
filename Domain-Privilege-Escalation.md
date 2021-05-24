@@ -66,6 +66,10 @@ python.exe .\tgsrepcrack.py .\10k-worst-pass.txt .\2-40a10000-student1@MSSQLSvc~
 .\hashcat.exe -m 18200 -a 0 <HASH FILE> <WORDLIST>
 ```
 
+```
+.\John.exe --wordlist=C:\AD\Tools\kerberoast\10k-worst-pass.txt hashes.txt
+```
+
 ## AS-REPS Roasting
 #### Enumerating accounts with kerberos preauth disabled
 ```
