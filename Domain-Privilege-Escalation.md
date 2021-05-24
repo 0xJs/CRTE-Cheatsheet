@@ -2,7 +2,7 @@
 * [Kerberoast](#Kerberoast) 
   * [Set SPN](#Set-SPN)
 * [AS-REP Roasting](#AS-REP-Roasting) 
-  * [Set pre-auth not required](#Set-pre---auth-not-required)  
+  * [Set pre-auth not required](#Set-pre-auth-not-required)  
 * [MS Exchange](#MS-Exchange) 
 * [Delegation](#Delegation) 
   * [Unconstrained Delegation](#Unconstrained-delegation) 
