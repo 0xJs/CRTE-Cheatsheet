@@ -194,6 +194,7 @@ Get-DomainUser -TrustedToAuth | select samaccountname, msds-allowedtodelegateto
 Get-Domaincomputer -TrustedToAuth
 Get-Domaincomputer -TrustedToAuth | select samaccountname, msds-allowedtodelegateto
 ```
+
 ### Constrained delegation User
 #### Requesting TGT with kekeo
 ```
