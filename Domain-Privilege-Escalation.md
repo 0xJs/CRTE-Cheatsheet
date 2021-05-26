@@ -13,7 +13,7 @@
   * [Trust tickets](#Trust-tickets)
   * [Krbtgt hash](#Krbtgt-hash)
 * [Cross Domain attacks](#Cross-Domain-attacks)
- * [MS Exchange](#MS-Exchange2)
+  * [MS Exchange](#MS-Exchange2)
 * [Cross Forest attacks](#Cross-Forest-attacks)
   * [Kerberoast](#Kerberoast2)
   * [Trust flow](#Trust-flow) 
