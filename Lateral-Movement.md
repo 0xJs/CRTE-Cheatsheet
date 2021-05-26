@@ -15,6 +15,11 @@ $sess = New-PSSession -Computername <COMPUTERNAME>
 Enter-PSSession $sess
 ```
 
+#### PSremoting NTLM authetication (after overpass the hash)
+```
+Enter-PSSession -ComputerName <COMPUTERNAME> -Authentication Negotiate 
+```
+
 #### Execute commands on a machine
 ```
 Invoke-Command -Computername <COMPUTERNAME> -Scriptblock {<COMMAND>} 
