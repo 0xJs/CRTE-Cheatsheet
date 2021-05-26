@@ -15,7 +15,7 @@
 * [Crossforest attacks](#Crossforest-attacks)
   * [Kerberoast](#Kerberoast2)
   * [Trust flow](#Trust-flow) 
-  * [Trust abuse SQL](#Trust-abuse-SQL) 
+* [Trust abuse SQL](#Trust-abuse-SQL) 
 
 ## Kerberoast
 - https://github.com/GhostPack/Rubeus
@@ -408,7 +408,7 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<domain>
 ls \\<servername>\<share>\
 ```
 
-### Trust abuse SQL
+## Trust abuse SQL
 ```
 . .\PowerUpSQL.ps1
 ```
