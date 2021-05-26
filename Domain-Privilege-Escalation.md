@@ -9,9 +9,9 @@
     * [Printer Bug](#Printer-bug) 
   * [Constrained Delegation](#Constrained-delegation) 
 * [DNS Admins](#DNS-Admins) 
-* [Enterprise Admins](#Enterprise-Admins) 
-  * [Child to parent - Trust tickets](#Child-to-parent---Trust-tickets)
-  * [Child to parent - krbtgt hash](#Child-to-parent---krbtgt-hash)
+* [Child to parent attacks](#Child-to-parent-attacks) 
+  * [Trust tickets](#Trust-tickets)
+  * [Krbtgt hash](#Krbtgt-hash)
 * [Crossforest attacks](#Crossforest-attacks)
   * [Kerberoast](#Kerberoast2)
   * [Trust flow](#Trust-flow) 
@@ -314,8 +314,8 @@ Sc \\<dns server> stop dns
 Sc \\<dns server> start dns
 ```
 
-## Enterprise Admins
-### Child to parent - trust tickets
+## Child to parent attacks
+### Trust tickets
 - Abuses SID History
 #### Dump trust keys
 - Look for in trust key from child to parent (first command)
@@ -349,7 +349,7 @@ misc::convert lsa <KIRBI FILE>
 dir \\<FQDN PARENT DC>\C$ 
 ```
 
-### Child to parent - krbtgt hash
+### Krbtgt hash
 - Abuses SID History
 #### Get krbtgt hash from dc
 ```
