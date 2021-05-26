@@ -12,8 +12,9 @@
 * [Child to parent attacks](#Child-to-parent-attacks) 
   * [Trust tickets](#Trust-tickets)
   * [Krbtgt hash](#Krbtgt-hash)
-* [Crossforest attacks](#Crossforest-attacks)
-  * [MS Exchange](#MS-Exchange)
+* [Cross Domain attacks](#Cross-Domain-attacks)
+ * [MS Exchange](#MS-Exchange2)
+* [Cross Forest attacks](#Cross-Forest-attacks)
   * [Kerberoast](#Kerberoast2)
   * [Trust flow](#Trust-flow) 
 * [Trust abuse SQL](#Trust-abuse-SQL) 
@@ -159,7 +160,7 @@ Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<
 Set-DomainObject -Identity <username> -XOR @{useraccountcontrol=4194304} -Verbose
 ```
 
-## MS Exchange
+### MS Exchange
 - https://github.com/dafthack/MailSniper
 
 #### Enumerate all mailboxes
@@ -370,8 +371,8 @@ dir \\<FQDN PARENT DC>\C$
 
 #### Enter pssession to server!
 
-## Crossforest attacks
-### MS Exchange
+## Cross Domain attacks
+### MS Exchange2
 ![afbeelding](https://user-images.githubusercontent.com/43987245/119706037-bf8d3000-be59-11eb-84cc-6568ba6e5d26.png)
 
 #### Enumerate if exchange groups exist
@@ -410,6 +411,7 @@ $group = Get-DomainGroup -Identity 'DNSAdmins' -Domain <DOMAIN>
 Add-DomainGroupMember -Identity $group -Members $user -Verbose
 ```
 
+## Crossforest attacks
 ### Kerberoast2
 #### Enumerate users with SPN cross-forest
 ```
