@@ -3,7 +3,7 @@
   * [Set SPN](#Set-SPN)
 * [AS-REP Roasting](#AS-REP-Roasting) 
   * [Set pre-auth not required](#Set-pre-auth-not-required)  
-* [ACL](#ACL)
+* [Acces Control List](#Acces Control List)
 * [MS Exchange](#MS-Exchange) 
 * [Delegation](#Delegation) 
   * [Unconstrained Delegation](#Unconstrained-delegation) 
@@ -168,7 +168,7 @@ Invoke-ACLScanner -ResolveGUIDS | Where-Object {$_.IdentityReference -match “<
 Set-DomainObject -Identity <username> -XOR @{useraccountcontrol=4194304} -Verbose
 ```
 
-## ACL
+## Access Control List
 - It is possible to abuse permissions (ACL's)
 - `ObjectDN` = The object the permissions apply to
 - `ActiveDirectoryRight` == Permissions
