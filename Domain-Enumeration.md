@@ -21,7 +21,7 @@ Get-Domain
 
 #### Get object of another domain
 ```
-Get-Domain -Domain <domainname>
+Get-Domain -Domain <DOMAIN NAME>
 ```
 
 #### Get Domain SID for the current domain
@@ -47,7 +47,7 @@ Get-DomainController | select-object Name
 #### Get information of users in the domain
 ```
 Get-DomainUser
-Get-DomainUser -Username <username>
+Get-DomainUser -Username <USERNAME>
 ```
 
 #### Get list of all users
@@ -84,9 +84,9 @@ Get-DomainComputer -FullData
 Get-DomainComputer -Computername <COMPUTERNAME> -FullData
 ```
 
-#### Get computers with operating system ""
+#### Get computers with a specific Operating System ""
 ```
-Get-DomainComputer -OperatingSystem "*Server 2016*"
+Get-DomainComputer -OperatingSystem "*<VERSION*"
 ```
 
 #### Get list of all computer names and operating systems
@@ -97,14 +97,17 @@ Get-DomainComputer -fulldata | select samaccountname, operatingsystem, operating
 #### List all groups of the domain
 ```
 Get-DomainGroup
-Get-DomainGroup -GroupName *admin*
 Get-DomainGroup -Domain <DOMAIN>
 ```
 
-#### Get all the members of the group
+#### List all groups with `*admin*` in there name
 ```
-Get-DomainGroupMember -Groupname "Domain Admins" -Recurse
-Get-DomainGroupMember -Groupname "Domain Admins" -Recurse | select MemberName
+Get-DomainGroup -GroupName *admin*
+```
+
+#### Get all the members of a group
+```
+Get-DomainGroupMember -Groupname "<GROUP>" -Recurse
 ```
 
 #### Get the group membership of a user
@@ -125,17 +128,17 @@ Get-NetLocalGroupMember -ComputerName <COMPUTERNAME -GroupName <GROUPNAME>
 
 #### Get actively logged users on a computer (needs local admin privs)
 ```
-Get-NetLoggedon -Computername <computername>
+Get-NetLoggedon -Computername <COMPUTERNAME>
 ```
 
 #### Get locally logged users on a computer (needs remote registry rights on the target)
 ```
-Get-LoggedonLocal -Computername <computername>
+Get-LoggedonLocal -Computername <COMPUTERNAME>
 ```
 
 #### Get the last logged users on a computer (needs admin rights and remote registary on the target)
 ```
-Get-LastLoggedOn -ComputerName <computername>
+Get-LastLoggedOn -ComputerName <COMPUTERNAME>
 ```
 
 ## Powerview shares
@@ -159,6 +162,10 @@ Get-NetFileServer
 #### Get list of GPO's in the current domain
 ```
 Get-DomainGPO
+```
+
+#### Get GPO of a specific computer
+```
 Get-DomainGPO -Computername <COMPUTERNAME>
 ```
 
@@ -187,6 +194,7 @@ Get-DomainGPO -Identity '{<ID>}'
 ```
 (Get-DomainOU).distinguishedname | %{Get-DomainComputer -SearchBase $_} | Get-DomainGPOComputerLocalGroupMapping
 ```
+
 #### Get users which are in a local group of a machine in a particular OU using GPO
 ```
 (Get-DomainOU -Identity 'OU=Mgmt,DC=us,DC=techcorp,DC=local').distinguishedname | %{GetDomainComputer -SearchBase $_} | GetDomainGPOComputerLocalGroupMapping
