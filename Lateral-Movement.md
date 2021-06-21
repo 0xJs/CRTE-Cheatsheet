@@ -5,7 +5,7 @@
 * [DC-Sync](#DC-Sync)
 * [Offensive .NET](#Offensive-.NET)
 * [Mimikatz](#Mimikatz) 
-* [Token manipulation](#Token manipulation)
+* [Token manipulation](#Token-manipulation)
 * [Check Local Admin Access](#Check-Local-Admin-Access)  
 
 ## General
