@@ -9,6 +9,11 @@ powershell.exe -executionpolicy bypass
 ```
 
 ## AV
+#### Check if windows defender is running
+```
+Get-MpComputerStatus
+```
+
 #### Disable AV monitoring
 ```
 Set-MpPreference -DisableRealtimeMonitoring $true
