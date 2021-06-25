@@ -177,6 +177,14 @@ Set-DomainObject -Identity <username> -XOR @{useraccountcontrol=4194304} -Verbos
 Find-InterestingDomainAcl -ResolveGUIDS -Domain <DOMAIN>
 ```
 
+#### Set SPN
+- See [Set SPN](#Set-SPN) 
+
+### Add user to a group
+```
+Add-DomainGroupMember -Identity "<GROUP>" -Members <DOMAIN>\<USER>
+```
+
 ## MS Exchange
 - https://github.com/dafthack/MailSniper
 
@@ -635,7 +643,6 @@ Find-ForeignUser -Verbose
 Find-InterestingDomainAcl -Domain <TRUST FOREST>
 ```
 - Abuse ACL to other forest.
-
 
 
 ### Pam Trust
