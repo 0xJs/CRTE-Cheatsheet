@@ -573,6 +573,7 @@ Get-SQLInstanceDomain | Get-SQLConnectionTestThreaded – Verbose
 ```
 
 #### Gather information
+- If connection succes! Connect to the DB with heidiSQL and look in it!
 ```
 Get-SQLInstanceDomain | Get-SQLServerInfo -Verbose
 ```
