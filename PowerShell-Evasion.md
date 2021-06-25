@@ -12,6 +12,7 @@ powershell.exe -executionpolicy bypass
 #### Check if windows defender is running
 ```
 Get-MpComputerStatus
+Get-MpComputerStatus | Select RealTimeProtectionEnabled
 ```
 
 #### Disable AV monitoring
