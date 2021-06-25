@@ -9,6 +9,11 @@
 * [Check Local Admin Access](#Check-Local-Admin-Access)  
 
 ## General
+#### Add domain user to localadmin
+```
+net localgroup Administrators <DOMAIN>\<USER> /add
+```
+
 #### Connect to machine with administrator privs
 ```
 Enter-PSSession -Computername <COMPUTERNAME>
