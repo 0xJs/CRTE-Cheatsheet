@@ -18,6 +18,7 @@ Get-MpComputerStatus | Select RealTimeProtectionEnabled
 #### Disable AV monitoring
 ```
 Set-MpPreference -DisableRealtimeMonitoring $true
+Set-MpPReference -DisableIOAVProtection $true
 ```
 
 ## Constrained Lanuage Mode
