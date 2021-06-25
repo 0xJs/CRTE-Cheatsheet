@@ -289,7 +289,7 @@ Invoke-Bloodhound -CollectionMethod LoggedOn -Verbose
 cd C:\neo4j\neo4j-community-3.5.1-windows\bin
 neo4j.bat install-service
 neo4j.bat start
-#Browse to BloodHound-win32-x64
+#Browse to BloodHound-win32-x64 
 Run BloodHound.exe
 #Change credentials and login
 ```
