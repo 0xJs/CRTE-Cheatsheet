@@ -636,6 +636,8 @@ Find-InterestingDomainAcl -Domain <TRUST FOREST>
 ```
 - Abuse ACL to other forest.
 
+
+
 ### Pam Trust
 - PAM trust is usually enabled between a Bastion or Red forest and a production/user forest which it manages. 
 - PAM trust provides the ability to access a forest with high privileges without using credentials of the current forest. Thus, better security for the bastion forest which is much desired.
