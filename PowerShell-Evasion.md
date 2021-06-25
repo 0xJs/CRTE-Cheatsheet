@@ -1,5 +1,11 @@
 # Evasion
 ## Execution-policy
+#### Get Execution policy
+```
+Get-Executionpolicy
+```
+
+#### Bypass execution policy
 - Not meant to be a security measure
 ```
 powershell –executionpolicy bypass .\script.ps1
