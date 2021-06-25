@@ -236,6 +236,9 @@ Get-PathAcl -Path "\\<DC>\sysvol"
 ```
 Find-InterestingDomainAcl -ResolveGUIDs
 Find-InterestingDomainAcl -ResolveGUIDs | select IdentityReference, ObjectDN, ActiveDirectoryRights | fl
+
+#New Powerview
+Find-InterestingDomainAcl -ResolveGUIDs | select IdentityReferenceName, ObjectDN, ActiveDirectoryRights | fl
 ```
 
 #### Search of interesting ACL's for the current user
