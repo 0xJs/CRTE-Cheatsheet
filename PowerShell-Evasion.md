@@ -21,6 +21,11 @@ Set-MpPreference -DisableRealtimeMonitoring $true
 Set-MpPReference -DisableIOAVProtection $true
 ```
 
+#### Disable Firewall
+```
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False 
+```
+
 ## Constrained Lanuage Mode
 #### Check the language mode
 ```
