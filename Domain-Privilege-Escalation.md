@@ -598,7 +598,7 @@ Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Verbose
 
 #### Crawl links and show servers where we are sysadmin
 ```
-Get-SQLServerLinkCrawl -Instance UFC-SQLDev.us.funcorp.local | Where-Object -Property sysadmin -Match 1
+Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> | Where-Object -Property sysadmin -Match 1
 ```
 
 #### Crawl and try to use xp_cmdshell on every link
