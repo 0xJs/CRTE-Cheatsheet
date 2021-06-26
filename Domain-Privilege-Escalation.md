@@ -577,7 +577,7 @@ Get-SQLInstanceDomain
 #### Check accessibility to SQL servers
 ```
 Get-SQLConnectionTestThreaded
-Get-SQLInstanceDomain | Get-SQLConnectionTestThreaded – Verbose
+Get-SQLInstanceDomain | Get-SQLConnectionTestThreaded –Verbose
 ```
 
 #### Gather information
