@@ -586,6 +586,16 @@ Get-SQLInstanceDomain | Get-SQLConnectionTestThreaded –Verbose
 Get-SQLInstanceDomain | Get-SQLServerInfo -Verbose
 ```
 
+#### Audit for issues
+```
+Invoke-SQLAudit -Verbose -Instance <SQL INSTANCE>
+```
+
+#### Check if impersonation is possible
+```
+Invoke-SQLAuditPrivImpersonateLogin -Instance <SQL INSTANCE> -Verbose -Debug -Exploit
+```
+
 #### Search for links to remote servers
 ```
 Get-SQLServerLink -Instance <SQL INSTANCE> -Verbose
