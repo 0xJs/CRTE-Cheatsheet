@@ -1,5 +1,6 @@
 # Lateral Movement
 * [General](#General)
+* [Find credentials in files](#Find-credentials-in-files)
 * [Dumping LSASS](#Dumping-LSASS)
 * [Overpass The Hash](#Overpass-The-Hash)
 * [DC-Sync](#DC-Sync)
