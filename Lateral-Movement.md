@@ -1,7 +1,6 @@
 # Lateral Movement
 * [General](#General)
-* [test](#test)
-* [Gathering Credentials](#Gathering credentials)
+* [Gathering Credentials](#Gathering-credentials)
   * [Find credentials in files](#Find-credentials-in-files)
   * [Dumping LSASS](#Dumping-LSASS)
   * [Dumping SAM](#Dumping-SAM)
