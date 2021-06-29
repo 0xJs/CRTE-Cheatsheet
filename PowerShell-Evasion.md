@@ -158,3 +158,6 @@ winrs -remote:server1 -u:<COMPUTERNAME>\<USER> -p:<PASS> hostname
 - In Settings tab edit the rule and select the preset as `Normal`.
 - In Protect tab click on the protect button.
 - We will find the new obfuscated binary in the Confused folder under the Base Directory.
+
+#### If script gets detected use:
+- https://github.com/yoda66/PowerStrip
