@@ -7,8 +7,8 @@
   * [Mimikatz](#Mimikatz) 
   * [DC-Sync](#DC-Sync)
   * [Token manipulation](#Token-manipulation)
-* [Overpass The Hash](#Overpass-The-Hash)
 * [Pass The Hash](#Pass-The-Hash)
+  * [Overpass The Hash](#Overpass-The-Hash)
 * [Check Local Admin Access](#Check-Local-Admin-Access)  
 * [Offensive .NET](#Offensive-.NET)
 
