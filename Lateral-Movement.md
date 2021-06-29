@@ -1,4 +1,4 @@
-# Lateral Movement
+# Lateral Movements
 * [General](#General)
 * [Gathering Credentials](#Gathering credentials)
   * [Find credentials in files](#Find-credentials-in-files)
