@@ -67,6 +67,10 @@ Start-Sleep -s 10
 certutil -urlcache -split -f <URL>
 ```
 
+#### Execute scripts
+- It is possible to execute scripts on the filesystem but you can't load them!
+- If applocker is there enumerate it to find a directory that lets you execute scripts in
+
 ## Applocker
 #### Check if applocker policy is running
 ```
