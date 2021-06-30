@@ -150,11 +150,13 @@ winrs -remote:server1 -u:<COMPUTERNAME>\<USER> -p:<PASS> hostname
 - https://github.com/bohops/WSMan-WinRM
 
 ## AV Bypass
+### Method one
 - Defendercheck to check for signatures https://github.com/matterpreter/DefenderCheck
 - Run Defendercheck ```DefenderCheck.exe <PATH TO BINARY>```
 - Replace string which gets detected.
 - Recompile and check again!
 
+#### Method two
 - Obfuscate binary with https://github.com/mkaring/ConfuserEx
 - Launch ConfuserEx
 - In Project tab select the Base Directory where the binary file is located.
