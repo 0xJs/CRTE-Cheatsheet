@@ -630,7 +630,7 @@ Invoke-SQLAudit -Verbose -Instance <SQL INSTANCE>
 ```
 
 ### Exploitation
-### Impersonation
+#### Impersonation attack
 #### Check if impersonation is possible
 ```
 Invoke-SQLAuditPrivImpersonateLogin -Instance <SQL INSTANCE> -Verbose -Debug -Exploit
