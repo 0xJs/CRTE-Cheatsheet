@@ -168,3 +168,15 @@ winrs -remote:server1 -u:<COMPUTERNAME>\<USER> -p:<PASS> hostname
 
 #### If script gets detected use:
 - https://github.com/yoda66/PowerStrip
+
+#### Compile defendercheck
+- Using visual studio code
+```
+csc.exe /target:exe /out:C:\tools\defendercheck.exe C:\Tools\DefenderCheck\DefenderCheck\DefenderCheck\Program.cs
+```
+
+#### Random notes
+```
+pyinstaller.exe --onefile .\CVE-2021-1675.py
+pyarmor pack --clean -e "--onefile " .\CVE-2021-1675.py
+```
