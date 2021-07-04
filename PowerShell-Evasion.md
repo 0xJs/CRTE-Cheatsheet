@@ -157,6 +157,7 @@ winrs -remote:server1 -u:<COMPUTERNAME>\<USER> -p:<PASS> hostname
 - https://github.com/bohops/WSMan-WinRM
 
 ## AV Bypass
+- Can also use https://github.com/rasta-mouse/ThreatCheck
 ### Method one
 - Defendercheck to check for signatures https://github.com/matterpreter/DefenderCheck
 - Run Defendercheck ```DefenderCheck.exe <PATH TO BINARY>```
