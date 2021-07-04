@@ -185,6 +185,12 @@ Find-InterestingDomainAcl -ResolveGUIDS -Domain <DOMAIN>
 Add-DomainGroupMember -Identity "<GROUP>" -Members <DOMAIN>\<USER>
 ```
 
+#### Set users password
+```
+$password = ConvertTo-SecureString '<PASSWORD>' -AsPlainText -Force
+Set-DomainUserPassword Identity <USER> -AccountPassword $password -Domain <DOMAIN>
+```
+
 ## MS Exchange
 - https://github.com/dafthack/MailSniper
 
