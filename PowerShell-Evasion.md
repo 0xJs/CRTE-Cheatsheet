@@ -105,6 +105,13 @@ runas /netonly /user:<DOMAIN\<USER> cmd.exe
 winrs -r:<PC NAME> cmd
 ```
 
+#### Check for the policy
+- ```.p7b``` is a signed policy
+- Check if there are any ```.xml``` files which didn't got removed with the policy
+```
+ls C:\Windows\system32\CodeIntegrity
+```
+
 ### LOLBAS
 - Use Microsoft Signed Binaries to exploit https://lolbas-project.github.io/
 
