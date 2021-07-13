@@ -551,8 +551,7 @@ dir \\<SERVER NAME>\<SHARE>\
 ```
 
 ### SID history enabled
-- If a external trust has SID history enabled. It is possible to inject a SIDHistory for RID > 1000 to access resources accessible to that identity or group in the target trusting forest. Needs to be user created!
-- If false its always possible even with other SIDS?
+- If a external trust has SID history enabled. It is possible to inject a SIDHistory for RID => 1000 (higher then 1000) to access resources accessible to that identity or group in the target trusting forest. Needs to be user created!
 
 #### Enumerate if SIDFilteringForestAware is enabled
 - Run on the DC.
