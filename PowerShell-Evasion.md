@@ -1,4 +1,6 @@
 # Evasion
+- Not powershell but storing here. UAC bypasses https://github.com/hfiref0x/UACME
+
 #### Powershell detections
 - System-wide transcription
 - Script Block logging 
