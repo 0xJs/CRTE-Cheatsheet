@@ -40,6 +40,19 @@ $creds = New-Object System.Management.Automation.PSCredential('<USERNAME>', $pas
 Get-Childitem -Path C:\ -Force -Include <FILENAME OR WORD TO SEARCH> -Recurse -ErrorAction SilentlyContinue
 ```
 
+#### Crackmapexec on windows
+- Download cme https://github.com/byt3bl33d3r/CrackMapExec/releases/tag/v5.1.1dev
+- Download latest version of python3.8 standalone (Windows embeddable package (64-bit)) https://www.python.org/downloads/windows/
+
+```
+add python to path variable:
+$env:Path += ";c:\python"
+$env:Path += ";c:\tools\python"
+
+add the register key if error blablah\DemoDLL_RemoteProcess.vcxproj.filters
+REG ADD "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
+```
+
 ## PSSession
 #### Save pssession in variable
 ```
