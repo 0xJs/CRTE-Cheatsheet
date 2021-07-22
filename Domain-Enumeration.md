@@ -1,4 +1,5 @@
 # Domain Enumeration
+* [General](#General)
 * [Powerview Domain](#Powerview-Domain)
 * [Powerview Users, groups and computers](#Powerview-users-groups-and-computers) 
 * [Powerview Shares](#Powerview-shares)
@@ -7,6 +8,18 @@
 * [Powerview ACL](#Powerview-ACL)
 * [Powerview Domain Trust](#Powerview-Domain-Trust)
 * [Bloodhound](#Bloodhound)
+
+## General
+- https://github.com/ropnop/kerbrute
+#### Enumerate usernames
+```
+./kerbrute_linux_amd64 userenum -d <DOMAIN.LOCAL> --dc <IP> usernames.txt
+```
+
+#### Bruteforce users
+```
+/kerbrute_linux_amd64 bruteuser -d <DOMAIN.LOCAL> --dc <IP> rockyou.txt username
+```
 
 ## Powerview Domain
 https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
