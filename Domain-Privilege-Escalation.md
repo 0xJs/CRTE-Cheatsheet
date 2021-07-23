@@ -725,6 +725,22 @@ List columns
 List the contents of table
 ```
 
+### Commands
+#### Check if current user is sysadmin
+```
+SELECT IS_SRVROLEMEMBER('sysadmin')
+```
+
+#### Check if a user is sysadmin
+```
+SELECT IS_SRVROLEMEMBER('sysadmin','<USER>')
+```
+
+#### List all sysadmins
+```
+SELECT   name,type_desc,is_disabled FROM     master.sys.server_principals  WHERE    IS_SRVROLEMEMBER ('sysadmin',name) = 1 ORDER BY name
+```
+
 ## Foreign Security Principals
 - A Foreign Security Principal (FSP) represents a Security Principal in a external forest trust or special identities (like Authenticated Users, Enterprise DCs etc.).
 
