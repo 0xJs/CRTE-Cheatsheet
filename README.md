@@ -1,5 +1,4 @@
 # CRTE-Cheatsheet
-Currently copied from CRTP-cheatsheet but will add more!
 
 # Summary
 * [General](#General)
