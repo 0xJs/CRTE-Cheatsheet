@@ -498,6 +498,11 @@ Enter-PSSession <COMPUTERNAME>
 Get-DomainForeignUser 
 ```
 
+#### Enumerates group in the target domain that contain users/groups who are not in the target domain.
+```
+Get-DomainForeignGroupMember -Domain <TARGET DOMAIN FQDN>
+```
+
 ### Kerberoast2
 #### Enumerate users with SPN cross-forest
 ```
