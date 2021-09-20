@@ -493,16 +493,6 @@ Enter-PSSession <COMPUTERNAME>
 ```
 
 ## Crossforest attacks
-#### Enumerate users who are in groups outside of the user’s current domain
-```
-Get-DomainForeignUser 
-```
-
-#### Enumerates group in the target domain that contain users/groups who are not in the target domain.
-```
-Get-DomainForeignGroupMember -Domain <TARGET DOMAIN FQDN>
-```
-
 ### Kerberoast2
 #### Enumerate users with SPN cross-forest
 ```
@@ -759,6 +749,16 @@ SELECT   name,type_desc,is_disabled FROM     master.sys.server_principals  WHERE
 ```
 Find-ForeignGroup -Verbose
 Find-ForeignUser -Verbose
+```
+
+#### Enumerate users who are in groups outside of the user’s current domain
+```
+Get-DomainForeignUser 
+```
+
+#### Enumerates group in the target domain that contain users/groups who are not in the target domain.
+```
+Get-DomainForeignGroupMember -Domain <TARGET DOMAIN FQDN>
 ```
 
 ## ACLS
