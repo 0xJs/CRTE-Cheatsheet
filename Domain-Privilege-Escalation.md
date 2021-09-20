@@ -18,7 +18,7 @@
   * [Child to Forest Root](#Child-to-Forest-Root)
     * [Trust key](#Trust-key)
     * [Krbtgt hash](#Krbtgt-hash)
-* [Cross Forest attacks](#Cross-Forest-attacks)
+* [Cross Forest attacks](#Crossforest-attacks)
   * [Kerberoast](#Kerberoast2)
   * [Printer Bug](#Printer-bug2) 
   * [Trust flow](#Trust-flow) 
@@ -493,6 +493,11 @@ Enter-PSSession <COMPUTERNAME>
 ```
 
 ## Crossforest attacks
+#### Enumerate users who are in groups outside of the user’s current domain
+```
+Get-DomainForeignUser 
+```
+
 ### Kerberoast2
 #### Enumerate users with SPN cross-forest
 ```
