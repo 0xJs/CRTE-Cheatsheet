@@ -1,7 +1,7 @@
 # Domain Privilege escalation
 * [Kerberoast](#Kerberoast) 
   * [Set SPN](#Set-SPN)
-* [LAPS}(#LAPS)
+* [LAPS](#LAPS)
 * [AS-REP Roasting](#AS-REP-Roasting) 
   * [Set pre-auth not required](#Set-pre-auth-not-required)  
 * [Access Control List(ACL)](#Access-Control-List)
