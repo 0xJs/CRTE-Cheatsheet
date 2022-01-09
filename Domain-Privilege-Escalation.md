@@ -104,6 +104,20 @@ Set-DomainObject -Identity <username> -Set @{serviceprincipalname=’<ops/whatev
 
 #### Then Kerberoast user
 
+## ACL
+- Check every owned user in bloodhoud
+#### Scan for interesting ACL's
+```
+Invoke-ACLScanner -ResolveGUIDS
+```
+
+#### Aclight2 scan
+- https://github.com/cyberark/ACLight
+```
+Import-Module ACLight2.psm1
+Start-ACLAnalysis
+```
+
 ## LAPS
 - On a computer, if LAPS is in use, a library AdmPwd.dll can be found in the C:\Program Files\LAPS\CSE directory.
 - Another great tool to use: https://github.com/leoloobeek/LAPSToolkit
