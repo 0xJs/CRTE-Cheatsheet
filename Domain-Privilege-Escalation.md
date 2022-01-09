@@ -262,6 +262,7 @@ Invoke-SelfSearch -Mailbox <EMAIL> -ExchHostname <EXCHANGE SERVER NAME> -OutputC
 ```
 
 ### MS Exchange escalating privileges
+- Attack is performed cross domain, but can be done inside the domain. Just use the current domain instead of parent domain!
 ![afbeelding](https://user-images.githubusercontent.com/43987245/119706037-bf8d3000-be59-11eb-84cc-6568ba6e5d26.png)
 
 #### Enumerate if exchange groups exist
