@@ -134,6 +134,8 @@ Get-DomainComputer | Where-object -property ms-Mcs-AdmPwdExpirationTime -like $n
 #### Check the LAPS configuration
 - https://github.com/PowerShell/GPRegistryPolicy
 - Password complexity, password length, password expiration, Acccount managing LAPS
+- AdmPwdEnabled 1 = local administrator password is managed
+- Passwordcomplexity 1 = large letters, 2 = large + small letters, 3 = Large + small + numbers, 4 = large + small + numbers + specials
 ```
 Parse-PolFile "<GPCFILESYSPATH FROM GET-DOMAINGPO>\Machine\Registry.pol" | select ValueName, ValueData
 ```
