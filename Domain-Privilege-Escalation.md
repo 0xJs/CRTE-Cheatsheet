@@ -129,7 +129,7 @@ Get-DomainComputer | Where-object -property ms-Mcs-AdmPwdExpirationTime -like $n
 - https://github.com/PowerShell/GPRegistryPolicy
 - Password complexity, password length, password expiration, Acccount managing LAPS
 ```
-Parse-PolFile \\<DC\SYSVOL\<DOMAIN>\Policies\<GUID>\Machine\Registry.pol
+Parse-PolFile "<GPCFILESYSPATH FROM GET-DOMAINGPO>\Machine\Registry.pol" | select ValueName, ValueData
 ```
 
 #### Check to which computers the LAPS GPO is applied to
@@ -140,9 +140,9 @@ Get-DomainComputer -Searchbase "LDAP://<distinguishedname>" -Properties Distingu
 
 #### Find all users who can read passwords in clear text machines in OU's
 ```
-Get-DomainOU -Fulldata | Get-DomainObjectAcl -ResolveGUIDs | Where-Object {($_.ObjectAceType -like 'ms-Mcs-AdmPwd') -and ($_.ActiveDirectoryRights -match 'ReadProperty')} | ForEach-Object {$_ | Add-Member NoteProperty 'IdentityName' $(Convert-SidToName $_.SecurityIdentifier);$_}
+Get-DomainOU | Get-DomainObjectAcl -ResolveGUIDs | Where-Object {($_.ObjectAceType -like 'ms-Mcs-AdmPwd') -and ($_.ActiveDirectoryRights -match 'ReadProperty')} | ForEach-Object {$_ | Add-Member NoteProperty 'IdentityName' $(Convert-SidToName $_.SecurityIdentifier);$_}
 
-Get-DomainOU -Fulldata | Get-DomainObjectAcl -ResolveGUIDs | Where-Object {($_.ObjectType -like 'ms-Mcs-AdmPwd') -and ($_.ActiveDirectoryRights -match 'ReadProperty')} | ForEach-Object {$_ | Add-Member NoteProperty 'IdentitySID' $(Convert-NameToSid $_.IdentityReference).SID;$_}
+Get-DomainOU | Get-DomainObjectAcl -ResolveGUIDs | Where-Object {($_.ObjectAceType -like 'ms-Mcs-AdmPwd') -and ($_.ActiveDirectoryRights -match 'ReadProperty')} | ForEach-Object {$_ | Add-Member NoteProperty 'IdentityName' $(Convert-SidToName $_.SecurityIdentifier);$_} | Select-Object ObjectDN, IdentityName
 ```
 
 ```
