@@ -113,11 +113,17 @@ Get-Childitem 'C:\Program Files\LAPS\CSE\AdmPwd.dll'
 Test-Path HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\GPExtensions #DOESNT WORK? GOTTA CHECK ECPPTX MATERIAL AGAIN
 ```
 
-#### Check existence of LAPS
+#### Check existence of LAPS in the domain
 ```
 Get-AdObject 'CN=ms-mcs-admpwd,CN=Schema,CN=Configuration,DC=<DOMAIN>,DC=<DOMAIN>'
-Get-DomainGPO -Identity *LAPS*
 Get-DomainComputer | Where-object -property ms-Mcs-AdmPwdExpirationTime | select-object samaccountname
+Get-DomainGPO -Identity *LAPS*
+```
+
+#### Check to which computers the LAPS GPO is applied to
+```
+Get-DomainOU -GPLink "Distinguishedname from GET-DOMAINGPO -Identity *LAPS*" | select name, distinguishedname
+Get-DomainComputer -Searchbase "LDAP://<distinguishedname>" -Properties Distinguishedname
 ```
 
 #### Check all computers without labs
@@ -130,12 +136,6 @@ Get-DomainComputer | Where-object -property ms-Mcs-AdmPwdExpirationTime -like $n
 - Password complexity, password length, password expiration, Acccount managing LAPS
 ```
 Parse-PolFile "<GPCFILESYSPATH FROM GET-DOMAINGPO>\Machine\Registry.pol" | select ValueName, ValueData
-```
-
-#### Check to which computers the LAPS GPO is applied to
-```
-Get-DomainOU -GPLink "<GUID NAME>" -Properties distinguishedname
-Get-DomainComputer -Searchbase "LDAP://<distinguishedname>" -Properties Distinguishedname
 ```
 
 #### Find all users who can read passwords in clear text machines in OU's
