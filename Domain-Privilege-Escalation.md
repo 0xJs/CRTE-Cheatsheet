@@ -109,15 +109,20 @@ Set-DomainObject -Identity <username> -Set @{serviceprincipalname=’<ops/whatev
 
 #### Check if LAPS is installed on local computer
 ```
-Get-Childitem 'C:\Program Files\LAPS\CSE directory\library AdmPwd.dll'
-Test-Path HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\GPExtensions
+Get-Childitem 'C:\Program Files\LAPS\CSE\AdmPwd.dll'
+Test-Path HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\GPExtensions #DOESNT WORK? GOTTA CHECK ECPPTX MATERIAL AGAIN
 ```
 
 #### Check existence of LAPS
 ```
 Get-AdObject 'CN=ms-mcs-admpwd,CN=Schema,CN=Configuration,DC=<DOMAIN>,DC=<DOMAIN>'
 Get-DomainGPO -Identity *LAPS*
-Get-DomainComputer -filter {ms-Mcs-AdmPwdExpirationTime- like *} -Propterties ms-Mcs-AdmPwdExpirationTime like
+Get-DomainComputer | Where-object -property ms-Mcs-AdmPwdExpirationTime | select-object samaccountname
+```
+
+#### Check all computers without labs
+```
+Get-DomainComputer | Where-object -property ms-Mcs-AdmPwdExpirationTime -like $null | select-object samaccountname
 ```
 
 #### Check the LAPS configuration
